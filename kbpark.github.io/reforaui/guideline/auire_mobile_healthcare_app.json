@@ -1,0 +1,33 @@
+{
+    "requirements": 
+    [
+        {
+            "abstract": {
+                "id": "A001",
+                "title": "When the situation is changed that the user cannot recognize user interfaace clearly, the user is provided with the user interface adapted with the situation to satisfy usability."
+            },
+            "concrete": {
+                "id": "C001",
+                "monitor": "Wobbles are monitored by sensors in Android phone.",
+                "analyze": "Sensor data is analyzed to determine whether the user is having trouble with the use of application due to the wobble.",
+                "plan": "If the usability is getting too low, the user interface should be getting simple.",
+                "execute": "When the adaptation determination is done, adaptation plan is actually performed.",
+                "knowledge": "Sensor monitoring interval, usability metric, UI simplifying determination rule, adaptation rule"
+            },
+            "final": {
+                "id": "F001",
+                "monitor": "Sensor type to monitor: Gyroscope, Accelerometer.",
+                "analyze": "Determination of usability metric: If the gyroscope data is under the certain value, the usability is too low.",
+                "plan": "UI Simplifying Adaptation Rule: Size of the texts of important UI elements increases and hide unimportant UI elements.",
+                "execute": "Adaptation time rule: If the usability metric is under the certain value, the adaptation is performed.",
+                "knowledge": "Sensor monitoring interval, usability metric, UI adaptation time rule, UI simplifying determination rule, importance information of each UI element"
+            },
+            "quality": {
+                "selfconfiguring": "Y",
+                "selfhealing": "Y",
+                "selfoptimizing": "N",
+                "selfprotecting": "Y"      
+            }
+        }
+    ]
+}

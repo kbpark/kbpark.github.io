@@ -1,0 +1,82 @@
+.pages {
+    display: none;
+}
+
+.req-content {
+    padding: 40px;
+}
+
+#title-text {
+  position: relative;
+  font-size: 1.4rem;
+}
+
+#nav-mobile {
+  position: relative;
+  max-width: 370px;
+  margin-left: auto;
+  margin-right: auto;
+
+}
+
+#main-article {
+  position: relative;
+  top: 1rem;
+}
+
+.strong-text {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.round-radius {
+  top: 10px;
+  border-radius: 50%;
+  padding: 30px;
+}
+
+body {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+#requirements {
+    text-align: left;
+    padding: 15px;
+    vertical-align: text-bottom;
+}
+
+#div-spec-criteria {
+  padding: 40px;
+  margin-bottom: 30px;
+}
+
+#div-requirements-project {
+  padding: 40px;
+  margin-bottom: 30px;
+}
+
+#toolbox {
+  padding-top: 20px;
+  padding-right: 20px;
+}
+
+#toolbox-requirements-project {
+  padding-top: 20px;
+  padding-right: 20px;
+}
+
+#submitButtonDiv {
+  padding-top: 20px;
+  padding-right: 20px;
+}
+
+.imgDefault {
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
