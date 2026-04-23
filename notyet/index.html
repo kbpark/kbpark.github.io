@@ -9,144 +9,68 @@
             --primary: #4A90E2; --primary-light: #E1F0FF; --danger: #FF5A5F; --success: #47C9A2; 
             --bg: #F0F2F5; --card: #FFFFFF; --text: #333; --text-light: #999;
         }
-        /* 전역 설정: 모든 요소가 테두리 안쪽으로 너비를 계산하도록 고정 */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; padding-bottom: 80px; color: var(--text); overflow-x: hidden; width: 100%; }
         
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: var(--bg); 
-            margin: 0; 
-            padding: 10px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            color: var(--text); 
-            overflow-x: hidden; /* 가로 스크롤 절대 방지 */
-            width: 100vw;
-        }
+        .container { width: 100%; max-width: 450px; }
+        
+        /* 헤더 */
+        .app-header { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 15px; padding: 0 5px; }
+        .app-title { font-size: 1.4rem; font-weight: 900; color: var(--primary); margin: 0; letter-spacing: -1px; }
+        .header-controls { display: flex; align-items: center; gap: 8px; }
+        .icon-btn { background: var(--card); border: none; width: 36px; height: 36px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); fill: #666; }
 
-        .container { 
-            width: 100%; 
-            max-width: 400px; /* S23 폭에 최적화된 최대 너비 */
-            margin: 0 auto;
-        }
-        
-        .app-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            width: 100%; 
-            margin-bottom: 12px; 
-            padding: 0 5px; 
-        }
-        .app-title { font-size: 1.3rem; font-weight: 900; color: var(--primary); margin: 0; }
-
-        /* 캘린더: S23 가로폭에 100% 맞춤 */
-        .calendar-card { 
-            background: var(--card); 
-            border-radius: 15px; 
-            padding: 10px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
-            margin-bottom: 15px; 
-            width: 100%;
-        }
-        
-        .cal-header { 
-            display: grid; 
-            grid-template-columns: 30px 1fr 30px; 
-            align-items: center; 
-            margin-bottom: 10px; 
-        }
-        .month-title { font-weight: 800; font-size: 1rem; text-align: center; }
-        .nav-btn { cursor: pointer; border: none; background: #f0f0f0; border-radius: 6px; height: 28px; font-size: 12px; }
-
-        .cal-grid { 
-            display: grid; 
-            grid-template-columns: repeat(7, 1fr); 
-            gap: 2px; /* 간격을 최소화하여 밀림 방지 */
-            width: 100%; 
-        }
-        
-        .day-header { text-align: center; font-size: 10px; color: var(--text-light); padding-bottom: 5px; font-weight: bold; }
-        
-        .day { 
-            min-height: 55px; 
-            background: #fff; 
-            border: 1px solid #f0f0f0; 
-            padding: 1px; 
-            font-size: 10px; 
-            cursor: pointer; 
-            border-radius: 4px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            overflow: hidden;
-        }
-        .day.today span:first-child { 
-            width: 16px; height: 16px; background: var(--primary); color: white; 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; 
-        }
-        .day.selected { background: #f0f7ff; border-color: var(--primary); }
-        
-        .meal-tag { 
-            width: 95%; 
-            font-size: 8px; 
-            color: white; 
-            padding: 1px 0; 
-            border-radius: 2px; 
-            margin-top: 1px; 
-            text-align: center;
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-            display: block; 
-        }
+        /* 캘린더 */
+        .calendar-card { background: var(--card); border-radius: 18px; padding: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; width: 100%; }
+        .cal-header { display: grid; grid-template-columns: 35px 1fr 35px; align-items: center; margin-bottom: 15px; }
+        .month-title { font-weight: 800; font-size: 1.1rem; text-align: center; }
+        .nav-btn { cursor: pointer; border: none; background: #f5f5f5; border-radius: 8px; height: 32px; display: flex; align-items: center; justify-content: center; fill: #666; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; width: 100%; }
+        .day-header { text-align: center; font-size: 10px; color: var(--text-light); padding-bottom: 8px; font-weight: bold; }
+        .day { min-height: 65px; background: #fff; border: 1px solid #f0f0f0; padding: 2px; font-size: 11px; cursor: pointer; border-radius: 6px; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
+        .day.today span:first-child { width: 18px; height: 18px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; }
+        .day.selected { background: #f0f7ff; border: 1.5px solid var(--primary); }
+        .meal-tag { width: 100%; font-size: 8.5px; color: white; padding: 2px 1px; border-radius: 3px; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
         .tag-safe { background: var(--success); }
         .tag-warning { background: var(--danger); }
 
         /* 입력 폼 */
-        .info-card { 
-            background: var(--card); 
-            border-radius: 15px; 
-            padding: 12px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
-            width: 100%;
-        }
+        .info-card { background: var(--card); border-radius: 18px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; width: 100%; }
+        .input-box { background: #f9fbff; border: 1px solid #eef2f8; border-radius: 15px; padding: 15px; position: relative; }
+        input, button { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #e1e1e1; border-radius: 10px; font-size: 14px; outline: none; }
+        button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
         
-        .input-box { background: #f9fbff; border-radius: 12px; padding: 12px; }
-        input, button { 
-            width: 100%; 
-            padding: 10px; 
-            margin: 4px 0; 
-            border: 1px solid #e1e1e1; 
-            border-radius: 8px; 
-            font-size: 13px; 
-            appearance: none; /* 모바일 기본 스타일 제거 */
+        #searchResults { 
+            display: none; position: absolute; left: 15px; right: 15px; top: 70px; 
+            background: white; border: 1px solid #ddd; z-index: 100; border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-height: 200px; overflow-y: auto;
         }
-        button { background: var(--primary); color: white; border: none; font-weight: bold; }
+        .search-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f5f5f5; cursor: pointer; font-size: 13px; }
+        .status-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .status-ok { color: var(--success); background: #e8f9f4; }
+        .status-wait { color: var(--danger); background: #fff0f0; }
 
-        /* 바텀 드로어 (S23 높이 고려) */
-        .drawer { 
-            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); 
-            width: 100%; max-width: 400px; background: white; 
-            border-radius: 15px 15px 0 0; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); 
-            height: 50px; z-index: 100; transition: 0.3s; 
-        }
-        .drawer.open { height: 300px; }
-        .drawer-handle { height: 50px; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: bold; color: #555; }
-        .drawer-content { padding: 0 12px 15px; height: 250px; overflow-y: auto; }
+        /* 아코디언 */
+        .accordion-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 12px; background: #fff5f5; border-radius: 10px; margin-top: 15px; font-size: 12px; font-weight: bold; color: var(--danger); }
+        .accordion-content { display: none; background: #fff; border: 1px solid #ffebeb; padding: 5px 12px; border-radius: 0 0 10px 10px; margin-top: -5px; }
+        .accordion-content.show { display: block; }
+        .wait-item { display: flex; justify-content: space-between; font-size: 12px; padding: 10px 0; border-bottom: 1px solid #fef2f2; }
 
-        .history-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 8px; background: #f8f9fa; border-radius: 6px; margin-bottom: 4px; font-size: 12px; 
-        }
-        
-        .dropdown-content { 
-            position: absolute; right: 0; top: 40px; background: white; border-radius: 10px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: none; z-index: 100; width: 120px; 
-            border: 1px solid #eee;
-        }
+        /* 설정 드롭다운 */
+        .settings-menu { position: relative; }
+        .dropdown-content { position: absolute; right: 0; top: 45px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: none; z-index: 200; width: 160px; border: 1px solid #eee; overflow: hidden; }
         .dropdown-content.show { display: block; }
+        .dropdown-item { padding: 12px 15px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #f5f5f5; display: flex; align-items: center; gap: 8px; color: #555; }
+
+        /* 모달 */
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px); padding: 20px; }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 100%; max-width: 320px; }
+        
+        .drawer { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 450px; background: white; border-radius: 20px 20px 0 0; box-shadow: 0 -10px 30px rgba(0,0,0,0.1); height: 55px; z-index: 100; transition: height 0.3s; }
+        .drawer.open { height: 350px; }
+        .drawer-handle { height: 55px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 13px; font-weight: bold; gap: 8px; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 10px; margin-bottom: 8px; font-size: 13px; }
+        .btn-small { width: auto; padding: 6px 10px; font-size: 11px; margin: 0; border-radius: 6px; }
     </style>
 </head>
 <body>
@@ -154,14 +78,20 @@
 <div class="container">
     <div class="app-header">
         <h1 class="app-title">🍕 또먹어?</h1>
-        <div style="position:relative;">
-            <button onclick="document.getElementById('drop').classList.toggle('show')" style="background:white; border:1px solid #ddd; border-radius:8px; padding:5px 8px; font-size:12px;">설정</button>
-            <div id="drop" class="dropdown-content">
-                <div style="padding:10px; font-size:12px; border-bottom:1px solid #eee;" onclick="downloadBackup()">📥 백업</div>
-                <div style="padding:10px; font-size:12px; color:red;" onclick="resetData()">🗑️ 초기화</div>
+        <div class="header-controls">
+            <button class="icon-btn" onclick="openAboutModal()"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z"/></svg></button>
+            <div class="settings-menu">
+                <button class="icon-btn" onclick="toggleDropdown()"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.97 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.97 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,13L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.95C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.95L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/></svg></button>
+                <div id="settingsDropdown" class="dropdown-content">
+                    <div class="dropdown-item" onclick="downloadBackup()">📥 데이터 백업</div>
+                    <div class="dropdown-item" onclick="triggerUpload()">📤 데이터 복구</div>
+                    <div class="dropdown-item" onclick="resetData()" style="color:var(--danger)">🗑️ 전체 초기화</div>
+                </div>
             </div>
         </div>
     </div>
+
+    <input type="file" id="fileInput" style="display:none" accept=".txt" onchange="uploadBackup(event)">
 
     <div class="calendar-card">
         <div class="cal-header">
@@ -173,18 +103,51 @@
     </div>
 
     <div class="info-card">
-        <h2 id="selectedDateText" style="margin: 0 0 10px 0; font-size: 0.9rem; text-align: center; color: var(--primary);">날짜를 선택하세요</h2>
-        <div id="mealList"></div>
+        <h2 id="selectedDateText" style="margin: 0 0 15px 0; font-size: 0.95rem; text-align: center; color: var(--primary);">날짜를 선택하세요</h2>
+        <div id="historySection" style="display:none; margin-bottom: 15px;"><div id="mealList"></div></div>
+        
         <div class="input-box">
-            <input type="text" id="menuInput" placeholder="메뉴 이름" autocomplete="off">
+            <input type="text" id="menuInput" placeholder="메뉴 검색 또는 입력" oninput="searchMenu(this.value)" autocomplete="off">
+            <div id="searchResults"></div>
             <input type="number" id="coolDownInput" placeholder="쿨타임 (일)" value="7">
             <button onclick="recordMeal()">기록하기</button>
+            
+            <div class="accordion-header" onclick="toggleAccordion()">
+                <span>🚨 아직 먹으면 안 돼요</span>
+                <span id="accordionArrow">▼</span>
+            </div>
+            <div id="waitingList" class="accordion-content"></div>
+        </div>
+    </div>
+</div>
+
+<div id="aboutModal" class="modal-overlay">
+    <div class="modal-content">
+        <h2 style="margin:0 0 15px 0; color:var(--primary); text-align: center;">🍕 또먹어?</h2>
+        <div style="font-size:13px; line-height:1.6; color:#555;">
+            <p><strong>'또먹어?'</strong>는 반복되는 식사 메뉴에 질리지 않도록 메뉴별 쿨타임을 관리해주는 개인 비서입니다.</p>
+            <p>메뉴를 기록하면 다음 섭취 가능일을 자동으로 계산하며, 검색 시 현재 먹어도 되는 상태인지 즉시 알려줍니다.</p>
+            <p>모든 데이터는 서버가 아닌 사용자의 <strong>기기에만 저장</strong>되어 사생활을 보호하며, 언제든 백업과 복구가 가능합니다.</p>
+        </div>
+        <button onclick="closeAboutModal()" style="margin-top:15px;">시작하기</button>
+    </div>
+</div>
+
+<div id="editModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 style="margin:0 0 15px 0; font-size: 1rem;">🍴 기록 수정</h3>
+        <p id="editTargetDate" style="font-size: 11px; color: #888; margin-bottom: 10px;"></p>
+        <input type="text" id="editMenuName" placeholder="메뉴 이름">
+        <input type="number" id="editCoolDown" placeholder="쿨타임">
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button onclick="closeEditModal()" style="background:#eee; color:#333;">취소</button>
+            <button onclick="saveEdit()">저장</button>
         </div>
     </div>
 </div>
 
 <div class="drawer" id="recommendDrawer">
-    <div class="drawer-handle" onclick="toggleDrawer()">🍕 다시 먹을 때가 된 메뉴</div>
+    <div class="drawer-handle" onclick="toggleDrawer()">🍕 먹을 때가 된 추천 메뉴</div>
     <div class="drawer-content" id="recommendList"></div>
 </div>
 
@@ -194,21 +157,43 @@
     let viewDate = new Date(); 
     let todayStr = new Date().toISOString().split('T')[0];
     let selectedDate = todayStr;
+    let editingItem = null;
+
+    // 요일 배열
+    const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+
+    // 날짜 문자열에 요일을 추가하는 헬퍼 함수
+    function formatWithDay(dateStr) {
+        if (!dateStr) return "";
+        const d = new Date(dateStr);
+        return `${dateStr} (${weekDays[d.getDay()]})`;
+    }
 
     function init() { renderCalendar(); renderRecommendations(); selectDate(selectedDate); }
+    function toggleDropdown() { document.getElementById('settingsDropdown').classList.toggle('show'); }
+    function openAboutModal() { document.getElementById('aboutModal').style.display = 'flex'; }
+    function closeAboutModal() { document.getElementById('aboutModal').style.display = 'none'; }
     
-    function checkCoolDownStatus(menu, dateStr) {
-        const prevMeals = currentData.filter(d => d.menu === menu && d.date < dateStr).sort((a, b) => new Date(b.date) - new Date(a.date));
-        if (prevMeals.length === 0) return true;
-        const diffDays = (new Date(dateStr) - new Date(prevMeals[0].date)) / (1000 * 60 * 60 * 24);
-        return diffDays >= (coolDownSettings[menu] || 7);
+    function toggleAccordion() {
+        const content = document.getElementById('waitingList');
+        const arrow = document.getElementById('accordionArrow');
+        content.classList.toggle('show');
+        arrow.innerText = content.classList.contains('show') ? '▲' : '▼';
+    }
+
+    function getRemainingDays(menu, baseDateStr) {
+        const last = currentData.filter(d => d.menu === menu && d.date < baseDateStr).sort((a,b) => new Date(b.date) - new Date(a.date))[0];
+        if (!last) return 0;
+        const avail = new Date(last.date); avail.setDate(avail.getDate() + (coolDownSettings[menu] || 7));
+        const diff = Math.ceil((avail - new Date(baseDateStr)) / (1000 * 60 * 60 * 24));
+        return diff > 0 ? diff : 0;
     }
 
     function renderCalendar() {
         const year = viewDate.getFullYear(), month = viewDate.getMonth();
         document.getElementById('monthDisplay').innerText = `${year}년 ${month + 1}월`;
         const grid = document.getElementById('calendarGrid'); grid.innerHTML = '';
-        ['일','월','화','수','목','금','토'].forEach(d => { const h = document.createElement('div'); h.className='day-header'; h.innerText=d; grid.appendChild(h); });
+        weekDays.forEach(d => { const h = document.createElement('div'); h.className='day-header'; h.innerText=d; grid.appendChild(h); });
         const firstDay = new Date(year, month, 1).getDay(), daysInMonth = new Date(year, month + 1, 0).getDate();
         for (let i = 0; i < firstDay; i++) grid.appendChild(document.createElement('div'));
         for (let i = 1; i <= daysInMonth; i++) {
@@ -220,9 +205,9 @@
             dayDiv.onclick = () => selectDate(dateStr);
             currentData.filter(d => d.date === dateStr).forEach(m => {
                 const tag = document.createElement('div');
-                tag.className = `meal-tag ${checkCoolDownStatus(m.menu, dateStr) ? 'tag-safe' : 'tag-warning'}`;
-                tag.innerText = m.menu;
-                dayDiv.appendChild(tag);
+                const rem = getRemainingDays(m.menu, dateStr);
+                tag.className = `meal-tag ${rem <= 0 ? 'tag-safe' : 'tag-warning'}`;
+                tag.innerText = m.menu; dayDiv.appendChild(tag);
             });
             grid.appendChild(dayDiv);
         }
@@ -230,37 +215,124 @@
 
     function selectDate(date) {
         selectedDate = date;
-        document.getElementById('selectedDateText').innerText = date;
+        document.getElementById('selectedDateText').innerText = formatWithDay(date);
         const dayMeals = currentData.filter(d => d.date === date);
-        const listDiv = document.getElementById('mealList');
-        listDiv.innerHTML = dayMeals.map(m => `
-            <div class="history-item">
-                <span>${m.menu} (${coolDownSettings[m.menu] || 7}일)</span>
-                <button style="background:#eee; border:none; padding:2px 6px; border-radius:4px; font-size:10px;" onclick="deleteMeal('${date}', '${m.menu}')">삭제</button>
-            </div>`).join('');
+        const section = document.getElementById('historySection');
+        if (dayMeals.length > 0) {
+            section.style.display = 'block';
+            document.getElementById('mealList').innerHTML = dayMeals.map(m => `
+                <div class="history-item">
+                    <span><strong>${m.menu}</strong> (${coolDownSettings[m.menu] || 7}일)</span>
+                    <div>
+                        <button class="btn-small" style="background:var(--success); color:white; border:none;" onclick="openEditModal('${m.menu}', '${date}')">수정</button>
+                        <button class="btn-small" style="background:#ccc; color:white; border:none;" onclick="deleteMeal('${date}', '${m.menu}')">삭제</button>
+                    </div>
+                </div>`).join('');
+        } else section.style.display = 'none';
+        
+        renderWaitingList(date);
         renderCalendar();
     }
 
-    function recordMeal() {
-        const menu = document.getElementById('menuInput').value.trim(), cd = parseInt(document.getElementById('coolDownInput').value);
-        if (!menu) return; currentData.push({ menu, date: selectedDate }); coolDownSettings[menu] = cd;
-        saveData(); selectDate(selectedDate); renderRecommendations(); document.getElementById('menuInput').value = '';
+    function renderWaitingList(baseDate) {
+        const box = document.getElementById('waitingList');
+        const uniqueMenus = [...new Set(currentData.map(d => d.menu))];
+        const items = uniqueMenus.map(menu => {
+            const rem = getRemainingDays(menu, baseDate);
+            return rem > 0 ? { menu, rem } : null;
+        }).filter(x => x).sort((a,b) => a.rem - b.rem);
+
+        box.innerHTML = items.length ? items.map(i => `
+            <div class="wait-item">
+                <span>${i.menu}</span>
+                <span style="color:var(--danger); font-weight:bold;">${i.rem}일 남음</span>
+            </div>
+        `).join('') : '<div style="font-size:11px; color:#999; padding:10px; text-align:center;">모두 가능합니다!</div>';
     }
 
-    function deleteMeal(date, menu) { if(confirm("삭제할까요?")) { currentData = currentData.filter(d => !(d.date === date && d.menu === menu)); saveData(); selectDate(date); } }
+    function searchMenu(val) {
+        const res = document.getElementById('searchResults');
+        if (!val) { res.style.display = 'none'; return; }
+        const uniqueMenus = [...new Set(currentData.map(d => d.menu))];
+        const list = uniqueMenus.filter(m => m.includes(val));
+        if (list.length > 0) {
+            res.innerHTML = list.map(menu => {
+                const rem = getRemainingDays(menu, selectedDate);
+                const isOk = rem <= 0;
+                return `
+                    <div class="search-item" onclick="applySearch('${menu}', ${coolDownSettings[menu] || 7})">
+                        <span>${menu}</span>
+                        <span class="status-badge ${isOk ? 'status-ok' : 'status-wait'}">
+                            ${isOk ? '✅ 가능' : '🚨 ' + rem + '일 남음'}
+                        </span>
+                    </div>`;
+            }).join('');
+            res.style.display = 'block';
+        } else res.style.display = 'none';
+    }
+
+    function applySearch(m, c) {
+        document.getElementById('menuInput').value = m;
+        document.getElementById('coolDownInput').value = c;
+        document.getElementById('searchResults').style.display = 'none';
+    }
+
+    function recordMeal() {
+        const menu = document.getElementById('menuInput').value.trim();
+        const cd = parseInt(document.getElementById('coolDownInput').value);
+        if (!menu) return;
+        currentData.push({ menu, date: selectedDate });
+        coolDownSettings[menu] = cd;
+        saveData(); selectDate(selectedDate); renderRecommendations();
+        document.getElementById('menuInput').value = '';
+    }
+
     function changeMonth(d) { viewDate.setMonth(viewDate.getMonth() + d); renderCalendar(); }
     function saveData() { localStorage.setItem('mealData', JSON.stringify(currentData)); localStorage.setItem('coolDownSettings', JSON.stringify(coolDownSettings)); }
     function toggleDrawer() { document.getElementById('recommendDrawer').classList.toggle('open'); }
+    
+    function openEditModal(menu, date) { 
+        editingItem = { menu, date }; 
+        document.getElementById('editTargetDate').innerText = formatWithDay(date);
+        document.getElementById('editMenuName').value = menu; 
+        document.getElementById('editCoolDown').value = coolDownSettings[menu] || 7; 
+        document.getElementById('editModal').style.display = 'flex'; 
+    }
+    function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+    function saveEdit() {
+        const nm = document.getElementById('editMenuName').value.trim(), nc = parseInt(document.getElementById('editCoolDown').value);
+        currentData = currentData.map(d => (d.date === editingItem.date && d.menu === editingItem.menu) ? { ...d, menu: nm } : d);
+        coolDownSettings[nm] = nc; saveData(); closeEditModal(); selectDate(selectedDate); renderRecommendations();
+    }
+    function deleteMeal(date, menu) { if(confirm("삭제하시겠습니까?")) { currentData = currentData.filter(d => !(d.date === date && d.menu === menu)); saveData(); selectDate(date); renderRecommendations(); } }
+    
     function renderRecommendations() {
         const last = {}; currentData.forEach(d => { if (!last[d.menu] || new Date(d.date) > new Date(last[d.menu])) last[d.menu] = d.date; });
-        const sugg = Object.keys(last).map(m => { const d = new Date(last[m]); d.setDate(d.getDate() + (coolDownSettings[m] || 7)); return { m, d }; }).sort((a,b) => a.d - b.d);
-        document.getElementById('recommendList').innerHTML = sugg.slice(0, 10).map(s => `<div class="history-item"><span>${s.m}</span><span style="color:var(--success)">${s.d.toISOString().split('T')[0]}</span></div>`).join('');
+        const sugg = Object.keys(last).map(m => { 
+            const d = new Date(last[m]); 
+            d.setDate(d.getDate() + (coolDownSettings[m] || 7)); 
+            return { m, d }; 
+        }).sort((a,b) => a.d - b.d);
+        
+        document.getElementById('recommendList').innerHTML = sugg.slice(0, 10).map(s => {
+            const dateStr = s.d.toISOString().split('T')[0];
+            return `<div class="history-item"><span>${s.m}</span><span style="color:var(--success)">${formatWithDay(dateStr)}</span></div>`;
+        }).join('');
     }
+
     function downloadBackup() {
+        const now = new Date();
+        const ts = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0') + "_" + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0') + String(now.getSeconds()).padStart(2, '0');
         const blob = new Blob([JSON.stringify({currentData, coolDownSettings})], { type: "text/plain" });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `또먹어_백업.txt`; a.click();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `notyet_backup_${ts}.txt`; a.click();
+    }
+    function triggerUpload() { document.getElementById('fileInput').click(); }
+    function uploadBackup(e) {
+        const r = new FileReader(); r.onload = (ev) => { try { const d = JSON.parse(ev.target.result); currentData = d.currentData; coolDownSettings = d.coolDownSettings; saveData(); location.reload(); } catch(e) { alert("파일 오류"); } };
+        r.readAsText(e.target.files[0]);
     }
     function resetData() { if(confirm("초기화할까요?")) { localStorage.clear(); location.reload(); } }
+    
     init();
 </script>
 </body>
