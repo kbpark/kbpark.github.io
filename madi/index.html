@@ -3,65 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>산적의 마디 정복 - 통합 에디션</title>
+    <title>산적의 마디 정복 - 하이브리드 모드</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <style>
-        :root { --accent: #e74c3c; --bg: #f0f2f5; --dark: #2c3e50; --blue: #3498db; --green: #2ecc71; --sidebar-width: 300px; }
-        body { margin: 0; font-family: 'Pretendard', sans-serif; background: var(--bg); color: #333; overflow-x: hidden; touch-action: manipulation; }
-        
+        :root { --accent: #e74c3c; --bg: #f0f2f5; --dark: #2c3e50; --blue: #3498db; --green: #2ecc71; --orange: #f39c12; --sidebar-width: 320px; }
+        body { margin: 0; font-family: 'Pretendard', sans-serif; background: var(--bg); overflow-x: hidden; touch-action: manipulation; }
         header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
-        .logo { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.4rem; color: var(--dark); }
+        .logo { font-weight: 800; font-size: 1.4rem; color: var(--dark); display: flex; align-items: center; gap: 10px; }
         .logo i { color: var(--accent); }
-        .head-btns { display: flex; gap: 20px; font-size: 1.5rem; color: #636e72; }
-        .head-btns i { cursor: pointer; padding: 5px; }
-
-        .main-dashboard { padding: 20px; max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+        .main-dashboard { padding: 20px; max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
         section { background: white; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; position: relative; }
-        .sec-header { padding: 20px 25px; font-weight: 800; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
+        .sec-header { padding: 20px 25px; font-weight: 800; cursor: pointer; display: flex; justify-content: space-between; border-bottom: 1px solid #eee; background: #fff; }
         .sec-content { padding: 25px; display: none; }
         .sec-content.open { display: block; }
-        
-        .inline-add-btn { position: absolute; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--accent); color: white; border: none; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4); font-size: 1.8rem; }
+        .inline-add-btn { position: absolute; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--accent); color: white; border: none; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 4px 15px rgba(231,76,60,0.4); font-size: 1.8rem; }
         section:has(.sec-content.open) .inline-add-btn { display: flex; }
-
         .song-card { background: #f8f9fa; padding: 18px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; border: 2px solid transparent; display: flex; justify-content: space-between; align-items: center; }
         .song-card.active { border-color: var(--accent); background: white; }
+        
+        /* 연습 영역 UI */
+        .m-render-box { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; background: #fff; padding: 25px; border-radius: 15px; border: 1px solid #eee; margin-bottom: 25px; }
+        .recorder-box { background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 25px; display: flex; flex-direction: column; align-items: center; gap: 15px; border: 1px dashed #ddd; }
+        .eval-group { display: flex; gap: 12px; margin-bottom: 25px; }
+        .btn-eval { flex: 1; padding: 18px; border: none; border-radius: 12px; color: white; font-weight: 800; cursor: pointer; font-size: 1.1rem; }
+        .queue-preview { background: #f1f3f5; padding: 15px; border-radius: 10px; font-size: 0.9rem; color: #555; text-align: left; line-height: 1.6; }
+        
+        /* 탭 시스템 */
+        .tab-container { margin-top: 40px; border-top: 2px solid #eee; padding-top: 25px; }
+        .tab-menu { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
+        .tab-btn { padding: 10px 20px; border-radius: 25px; border: 1px solid #ddd; background: #fff; white-space: nowrap; cursor: pointer; font-weight: 700; font-size: 14px; }
+        .tab-btn.active { background: var(--dark); color: white; border-color: var(--dark); }
+        .tab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; }
+        .status-cell { padding: 12px 5px; border-radius: 10px; font-size: 12px; text-align: center; border: 1px solid #eee; font-weight: 800; }
+        .status-상 { background: var(--green); color: white; border-color: var(--green); }
+        .status-중 { background: var(--orange); color: white; border-color: var(--orange); }
+        .status-하 { background: var(--accent); color: white; border-color: var(--accent); }
+        .status-미연습 { background: #f8f9fa; color: #bbb; }
 
-        /* 에디터 레이아웃 */
-        #editor-overlay { position: fixed; inset: 0; background: #fff; z-index: 9999; display: none; flex-direction: row; }
+        /* 에디터 오버레이 */
+        #editor-overlay { position: fixed; inset: 0; background: #fff; z-index: 9999; display: none; }
         #editor-overlay.active { display: flex; }
         .ed-main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        .ed-toolbar { height: 70px; background: white; border-bottom: 1px solid #ddd; display: flex; align-items: center; padding: 0 15px; gap: 10px; overflow-x: auto; }
-        
-        .ed-btn { height: 44px; padding: 0 15px; border-radius: 8px; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .ed-toolbar { height: 75px; background: white; border-bottom: 1px solid #ddd; display: flex; align-items: center; padding: 0 20px; gap: 12px; overflow-x: auto; }
+        .ed-btn { height: 46px; padding: 0 18px; border-radius: 10px; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         .ed-btn.accent { background: var(--accent); color: white; border: none; }
-        .ed-btn.save-btn { background: var(--green); color: white; border: none; }
-
-        .ed-canvas-area { flex: 1; overflow: auto; display: flex; flex-direction: column; align-items: center; padding: 30px; background: #dfe4ea; }
-        .canvas-container { position: relative; background: white; box-shadow: 0 0 50px rgba(0,0,0,0.3); }
-        #pdf-canvas { max-width: 100%; height: auto !important; }
+        .ed-canvas-area { flex: 1; overflow: auto; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #cbd5e0; }
+        .canvas-container { position: relative; background: white; box-shadow: 0 10px 60px rgba(0,0,0,0.4); }
+        #pdf-canvas { display: block; max-width: 100%; height: auto !important; }
         #interaction-canvas { position: absolute; inset: 0; z-index: 5; cursor: crosshair; }
         #ui-layer { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
-
-        /* 마디 디자인 */
-        .measure-box { position: absolute; border: 2px solid rgba(231, 76, 60, 0.7); pointer-events: none; }
-        .measure-handle { position: absolute; top: -30px; left: -2px; height: 30px; background: var(--accent); color: white; font-size: 12px; display: flex; align-items: center; gap: 10px; padding: 0 10px; pointer-events: auto; border-radius: 6px 6px 0 0; font-weight: 800; }
-        .staff-ctrl { position: absolute; left: -50px; top: 0; display: flex; flex-direction: column; gap: 8px; pointer-events: auto; }
-        .btn-staff { width: 35px; height: 35px; border-radius: 50%; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
-
-        /* 리사이저 */
+        .measure-box { position: absolute; border: 2px solid rgba(231, 76, 60, 0.75); }
+        .measure-handle { position: absolute; top: -34px; left: -2px; height: 34px; background: var(--accent); color: white; padding: 0 12px; pointer-events: auto; border-radius: 8px 8px 0 0; display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 13px; }
+        .staff-ctrl { position: absolute; left: -55px; top: 0; display: flex; flex-direction: column; gap: 10px; pointer-events: auto; }
+        .btn-staff { width: 38px; height: 38px; border-radius: 50%; border: none; color: white; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
         .resizer { position: absolute; pointer-events: auto; z-index: 20; }
         .resizer-v { top: 0; width: 16px; height: 100%; cursor: ew-resize; }
         .resizer-h { left: 0; height: 16px; width: 100%; cursor: ns-resize; }
         .resizer-right { right: -8px; } .resizer-left { left: -8px; }
         .resizer-top { top: -8px; } .resizer-bottom { bottom: -8px; }
-
-        /* 미리보기 사이드바 */
-        .resizer-bar { width: 6px; cursor: col-resize; background: #e9ecef; z-index: 100; }
+        .resizer-bar { width: 6px; cursor: col-resize; background: #eee; }
         .preview-sidebar { width: var(--sidebar-width); background: #fff; border-left: 1px solid #ddd; display: flex; flex-direction: column; }
-        .preview-list { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #f1f3f5; }
-        
+        .preview-list { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #edf2f7; }
+
         /* 마디 미리보기 아이템 */
         .preview-item { position: relative; margin-bottom: 5px; }
         .preview-item canvas { display: block; width: 100%; border: 1px solid #ddd; border-radius: 4px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -72,20 +76,18 @@
             z-index: 2; pointer-events: none;
         }
 
-        /* 모달 */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        /* 모달 스타일 */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal-overlay.active { display: flex; }
-        .modal-box { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; margin-top: 5px; font-size: 1rem; }
-        
-        .btn-eval { flex: 1; padding: 15px; border-radius: 10px; border: none; color: white; font-weight: 800; font-size: 1.1rem; cursor: pointer; }
+        .modal-box { background: white; padding: 35px; border-radius: 24px; width: 90%; max-width: 520px; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 14px; border: 2px solid #eee; border-radius: 12px; margin: 8px 0 15px; box-sizing: border-box; font-size: 16px; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo"><i class="fa-solid fa-music"></i> 산적의 마디 정복</div>
-    <div class="head-btns">
+    <div class="logo"><i class="fa-solid fa-music"></i> <span>산적의 마디 정복</span></div>
+    <div style="display:flex; gap:20px; font-size:1.5rem; color:#636e72; cursor:pointer;">
         <i class="fa-solid fa-circle-question" onclick="app.ui.modal('info-modal', true)"></i>
         <i class="fa-solid fa-gear" onclick="app.ui.modal('settings-modal', true)"></i>
     </div>
@@ -93,17 +95,13 @@
 
 <div class="main-dashboard">
     <section id="sec-management">
-        <div class="sec-header" onclick="app.ui.toggle('management')">
-            <span>곡 설정 및 관리</span><i class="fa-solid fa-chevron-up"></i>
-        </div>
+        <div class="sec-header" onclick="app.ui.toggle('management')"><span>악보 및 곡 관리</span><i class="fa-solid fa-chevron-up"></i></div>
         <div class="sec-content open" id="song-list"></div>
         <button class="inline-add-btn" onclick="app.logic.openAddModal()"><i class="fa-solid fa-plus"></i></button>
     </section>
-
+    
     <section id="sec-practice">
-        <div class="sec-header" onclick="app.ui.toggle('practice')">
-            <span>마디 정복 연습</span><i class="fa-solid fa-chevron-down"></i>
-        </div>
+        <div class="sec-header" onclick="app.ui.toggle('practice')"><span>연습 모드 (하이브리드 대기열)</span><i class="fa-solid fa-chevron-down"></i></div>
         <div class="sec-content" id="practice-area">곡을 선택해주세요.</div>
     </section>
 </div>
@@ -111,345 +109,300 @@
 <div id="editor-overlay">
     <div class="ed-main">
         <div class="ed-toolbar">
-            <button class="ed-btn" onclick="app.editor.movePage(-1)" title="이전 페이지"><i class="fa-solid fa-arrow-left"></i></button>
-            <span id="pg-info" style="font-weight:800; min-width:60px; text-align:center;">1 / 1</span>
-            <button class="ed-btn" onclick="app.editor.movePage(1)" title="다음 페이지"><i class="fa-solid fa-arrow-right"></i></button>
-            
-            <div style="width:1px; height:25px; background:#ddd; margin:0 5px;"></div>
-            
-            <button class="ed-btn" onclick="app.editor.undo()" title="Undo"><i class="fa-solid fa-rotate-left"></i></button>
-            <button class="ed-btn" onclick="app.editor.redo()" title="Redo"><i class="fa-solid fa-rotate-right"></i></button>
-            
-            <div style="width:1px; height:25px; background:#ddd; margin:0 5px;"></div>
-            
-            <button class="ed-btn" onclick="document.getElementById('json-input').click()" title="Load JSON"><i class="fa-solid fa-file-import"></i></button>
-            <button class="ed-btn" onclick="app.editor.saveJSON()" title="Save JSON"><i class="fa-solid fa-file-export"></i></button>
+            <button class="ed-btn" onclick="app.editor.movePage(-1)"><i class="fa-solid fa-arrow-left"></i></button>
+            <span id="pg-info" style="font-weight:800; min-width:70px; text-align:center;">1 / 1</span>
+            <button class="ed-btn" onclick="app.editor.movePage(1)"><i class="fa-solid fa-arrow-right"></i></button>
+            <div style="width:1px; height:30px; background:#eee; margin:0 5px;"></div>
+            <button class="ed-btn" onclick="app.editor.undo()"><i class="fa-solid fa-rotate-left"></i> Undo</button>
+            <button class="ed-btn" onclick="app.editor.redo()"><i class="fa-solid fa-rotate-right"></i> Redo</button>
+            <div style="width:1px; height:30px; background:#eee; margin:0 5px;"></div>
+            <button class="ed-btn" onclick="document.getElementById('json-input').click()"><i class="fa-solid fa-file-import"></i> Load</button>
+            <button class="ed-btn" onclick="app.editor.saveJSON()"><i class="fa-solid fa-file-export"></i> Save</button>
             <input type="file" id="json-input" style="display:none" onchange="app.editor.loadJSON(this)">
-            
             <div style="flex:1"></div>
-            <button class="ed-btn save-btn" onclick="app.editor.finish()"><i class="fa-solid fa-circle-check"></i> 완료</button>
+            <button class="ed-btn accent" onclick="app.editor.finish()"><i class="fa-solid fa-circle-check"></i> 편집 완료</button>
         </div>
         <div class="ed-canvas-area">
-            <div class="canvas-container">
-                <canvas id="pdf-canvas"></canvas>
-                <canvas id="interaction-canvas"></canvas>
-                <div id="ui-layer"></div>
-            </div>
+            <div class="canvas-container"><canvas id="pdf-canvas"></canvas><canvas id="interaction-canvas"></canvas><div id="ui-layer"></div></div>
         </div>
     </div>
     <div class="resizer-bar" id="sidebar-resizer"></div>
     <div class="preview-sidebar">
-        <div style="padding:15px; border-bottom:1px solid #eee; font-weight:800; display:flex; justify-content:space-between;">
-            <span>미리보기</span>
-            <span id="total-m-count" style="color:var(--accent);">0 마디</span>
+        <div style="padding:18px; border-bottom:1px solid #eee; font-weight:800; display:flex; justify-content:space-between; background:#fff;">
+            <span>미리보기</span><span id="total-m-count" style="color:var(--accent);">0 마디</span>
         </div>
         <div class="preview-list" id="preview-list"></div>
     </div>
 </div>
 
+<div class="modal-overlay" id="settings-modal">
+    <div class="modal-box">
+        <h3 style="margin-top:0;"><i class="fa-solid fa-gear"></i> 시스템 관리</h3>
+        <button class="ed-btn" style="width:100%; margin-bottom:12px; justify-content:center;" onclick="app.data.backup()"><i class="fa-solid fa-download"></i> 전체 데이터 백업</button>
+        <button class="ed-btn" style="width:100%; margin-bottom:12px; justify-content:center;" onclick="document.getElementById('restore-input').click()"><i class="fa-solid fa-upload"></i> 데이터 복구</button>
+        <input type="file" id="restore-input" style="display:none" onchange="app.data.restore(this)">
+        <button class="ed-btn" style="width:100%; color:var(--accent); justify-content:center;" onclick="app.data.reset()"><i class="fa-solid fa-trash"></i> 전체 초기화</button>
+        <button class="ed-btn" style="width:100%; margin-top:25px; justify-content:center; background:#eee;" onclick="app.ui.modal('settings-modal', false)">닫기</button>
+    </div>
+</div>
+
 <div class="modal-overlay" id="add-song-modal">
     <div class="modal-box">
-        <h3>🎻 곡 정보 설정</h3>
+        <h3>곡 정보 설정</h3>
         <input type="hidden" id="edit-song-id">
-        <label>곡 제목</label><input type="text" id="in-title" placeholder="곡 제목">
+        <label>곡 제목</label><input type="text" id="in-title">
         <label>PDF 악보</label><input type="file" id="pdf-upload" accept="application/pdf" onchange="app.pdf.handle(this)">
         <button id="open-ed-btn" class="ed-btn accent" style="display:none; width:100%; margin:15px 0; justify-content:center;" onclick="app.editor.open()">마디 에디터 열기</button>
-        <div style="display:flex; gap:10px;">
-            <div style="flex:1"><label>최소 연속</label><input type="number" id="in-min" value="1"></div>
-            <div style="flex:1"><label>최대 연속</label><input type="number" id="in-max" value="4"></div>
+        <div style="display:flex; gap:15px;">
+            <div style="flex:1"><label>최소 마디수</label><input type="number" id="in-min" value="1"></div>
+            <div style="flex:1"><label>최대 마디수</label><input type="number" id="in-max" value="4"></div>
         </div>
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="ed-btn save-btn" style="flex:1; justify-content:center;" onclick="app.logic.saveSong()">저장</button>
+        <div style="display:flex; gap:12px; margin-top:25px;">
+            <button class="ed-btn accent" style="flex:1; justify-content:center; background:var(--green)" onclick="app.logic.saveSong()">저장</button>
             <button class="ed-btn" style="flex:1; justify-content:center;" onclick="app.ui.modal('add-song-modal', false)">취소</button>
         </div>
     </div>
 </div>
 
-<div class="modal-overlay" id="settings-modal">
-    <div class="modal-box">
-        <h3><i class="fa-solid fa-gear"></i> 시스템 관리</h3>
-        <button class="ed-btn" style="width:100%; margin-bottom:10px;" onclick="app.data.backup()">백업 다운로드 (JSON)</button>
-        <button class="ed-btn" style="width:100%; margin-bottom:10px;" onclick="document.getElementById('restore-input').click()">백업 복원 (불러오기)</button>
-        <input type="file" id="restore-input" style="display:none" onchange="app.data.restore(this)">
-        <button class="ed-btn" style="width:100%; color:var(--accent);" onclick="app.data.reset()">데이터 전체 초기화</button>
-        <button class="ed-btn" style="width:100%; margin-top:20px; border:none;" onclick="app.ui.modal('settings-modal', false)">닫기</button>
-    </div>
-</div>
-
-<div class="modal-overlay" id="info-modal">
-    <div class="modal-box">
-        <h3>ℹ️ 사용 가이드</h3>
-        <p>1. PDF를 업로드하고 에디터를 엽니다.</p>
-        <p>2. 악보 위를 <strong>드래그</strong>하여 마디를 자동 생성합니다.</p>
-        <p>3. 마디 상단 핸들의 <strong>[+]/[-]</strong>로 칸을 나누거나 합칩니다.</p>
-        <p>4. 줄 왼쪽의 <strong>[+]</strong>로 줄을 복제할 수 있습니다.</p>
-        <p>5. 테두리를 드래그하여 정밀하게 크기를 맞춥니다.</p>
-        <button class="ed-btn accent" style="width:100%; justify-content:center;" onclick="app.ui.modal('info-modal', false)">확인</button>
-    </div>
-</div>
+<div class="modal-overlay" id="info-modal"><div class="modal-box"><h3>사용법</h3><p>잘되는 구간은 자동으로 뭉쳐서(연속마디) 나타납니다!</p><button class="ed-btn accent" style="width:100%; justify-content:center;" onclick="app.ui.modal('info-modal', false)">확인</button></div></div>
 
 <script>
-    const pdfJS = window['pdfjs-dist/build/pdf'];
-    pdfJS.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+const pdfJS = window['pdfjs-dist/build/pdf'];
+pdfJS.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-    const app = {
-        state: { pdfDoc: null, songs: [], pageData: {}, history: [], hIdx: -1, curPage: 1, curSong: null, db: null, tempBlob: null },
-        ui: {
-            modal: (id, show) => document.getElementById(id).classList[show?'add':'remove']('active'),
-            toggle: (id) => {
-                const content = document.querySelector(`#sec-${id} .sec-content`);
-                const isOpen = content.classList.toggle('open');
-                document.querySelector(`#sec-${id} .sec-header i`).className = isOpen ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
-            }
+const app = {
+    state: { pdfDoc: null, songs: [], pageData: {}, history: [], hIdx: -1, curPage: 1, curSong: null, db: null, tempBlob: null },
+    
+    // 1. 하이브리드 연습 로직 (준비된 조합은 즉시 등장)
+    practice: {
+        queue: [], curBatch: [], evals: {}, mediaRecorder: null, audioChunks: [], audioUrl: null,
+        init: async (id) => {
+            app.state.curSong = app.state.songs.find(s => s.id === id);
+            const pdf = await app.db.getPDF(id);
+            if(pdf) app.state.pdfDoc = await pdfJS.getDocument(new Uint8Array(await pdf.arrayBuffer())).promise;
+            app.practice.evals = app.state.curSong.results || {};
+            app.practice.refreshQueue();
+            app.practice.next();
+            if(!document.querySelector('#sec-practice .sec-content').classList.contains('open')) app.ui.toggle('practice');
         },
-        db: {
-            init: () => new Promise((res) => {
-                const req = indexedDB.open("SanjukDB", 1);
-                req.onupgradeneeded = (e) => e.target.result.createObjectStore("pdfs");
-                req.onsuccess = (e) => { app.state.db = e.target.result; res(); };
-            }),
-            savePDF: (id, blob) => app.state.db.transaction("pdfs", "readwrite").objectStore("pdfs").put(blob, String(id)),
-            getPDF: (id) => new Promise((res) => {
-                const req = app.state.db.transaction("pdfs", "readonly").objectStore("pdfs").get(String(id));
-                req.onsuccess = () => res(req.result);
-            })
-        },
-        data: {
-            save: () => localStorage.setItem('sanjuk_system', JSON.stringify({songs: app.state.songs})),
-            load: async () => {
-                const d = JSON.parse(localStorage.getItem('sanjuk_system') || '{"songs":[]}');
-                app.state.songs = d.songs; await app.db.init(); app.logic.renderSongs();
-            },
-            backup: () => {
-                const blob = new Blob([localStorage.getItem('sanjuk_system')], {type:'application/json'});
-                const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-                a.download = `sanjuk_backup_${new Date().toISOString().slice(0,10)}.json`; a.click();
-            },
-            restore: (el) => {
-                const r = new FileReader();
-                r.onload = (e) => { localStorage.setItem('sanjuk_system', e.target.result); location.reload(); };
-                r.readAsText(el.files[0]);
-            },
-            reset: () => { if(confirm("초기화하시겠습니까?")) { localStorage.clear(); indexedDB.deleteDatabase("SanjukDB"); location.reload(); } }
-        },
-        pdf: {
-            handle: async (el) => {
-                const f = el.files[0]; if(!f) return;
-                const buffer = await f.arrayBuffer();
-                app.state.tempBlob = new Blob([buffer], {type: 'application/pdf'});
-                app.state.pdfDoc = await pdfJS.getDocument(new Uint8Array(buffer)).promise;
-                document.getElementById('open-ed-btn').style.display = 'flex';
-            }
-        },
-        logic: {
-            openAddModal: (id = null) => {
-                if(id) {
-                    const s = app.state.songs.find(x => x.id === id);
-                    document.getElementById('edit-song-id').value = s.id;
-                    document.getElementById('in-title').value = s.title;
-                    document.getElementById('in-min').value = s.min;
-                    document.getElementById('in-max').value = s.max;
-                    app.state.pageData = JSON.parse(JSON.stringify(s.pageData || {}));
-                    document.getElementById('open-ed-btn').style.display = 'flex';
-                } else {
-                    document.getElementById('edit-song-id').value = "";
-                    document.getElementById('in-title').value = "";
-                    app.state.pageData = {};
-                    document.getElementById('open-ed-btn').style.display = 'none';
+        refreshQueue: () => {
+            const allM = app.editor.getFlatMeasures();
+            let combinations = [];
+            
+            // 핵심 수정: 현재 단계(step)에 구애받지 않고 min ~ max까지 모든 조합을 체크
+            for (let s = app.state.curSong.min; s <= app.state.curSong.max; s++) {
+                for (let i = 0; i <= allM.length - s; i++) {
+                    const batch = [];
+                    for (let j = 0; j < s; j++) batch.push(i + j + 1);
+                    
+                    let canAdd = true;
+                    // 진입 조건: 상위 마디(s > 1)는 하위 조각들이 '하'가 없고 최소 하나가 '상'이어야 함
+                    if (s > 1) {
+                        const subKey1 = batch.slice(0, -1).join(',');
+                        const subKey2 = batch.slice(1).join(',');
+                        const res1 = app.practice.evals[subKey1] || '미연습';
+                        const res2 = app.practice.evals[subKey2] || '미연습';
+                        
+                        if(res1 === '하' || res1 === '미연습' || res2 === '하' || res2 === '미연습') canAdd = false;
+                        if(res1 !== '상' && res2 !== '상') canAdd = false;
+                    }
+                    
+                    const key = batch.join(',');
+                    // 아직 이 조합을 완벽히 정복('상')하지 않았고 조건을 만족하면 큐 후보
+                    if (app.practice.evals[key] !== '상' && canAdd) {
+                        combinations.push(batch);
+                    }
                 }
-                app.ui.modal('add-song-modal', true);
-            },
-            saveSong: async () => {
-                const id = document.getElementById('edit-song-id').value || Date.now();
-                const song = {
-                    id: parseInt(id),
-                    title: document.getElementById('in-title').value || "무제",
-                    min: parseInt(document.getElementById('in-min').value),
-                    max: parseInt(document.getElementById('in-max').value),
-                    pageData: app.state.pageData
-                };
-                const idx = app.state.songs.findIndex(x => x.id == id);
-                if(idx > -1) app.state.songs[idx] = song; else app.state.songs.push(song);
-                if(app.state.tempBlob) await app.db.savePDF(id, app.state.tempBlob);
-                app.data.save(); app.logic.renderSongs(); app.ui.modal('add-song-modal', false);
-            },
-            renderSongs: () => {
-                document.getElementById('song-list').innerHTML = app.state.songs.map(s => `
-                    <div class="song-card ${app.state.curSong?.id === s.id ? 'active' : ''}" onclick="app.practice.init(${s.id})">
-                        <strong>${s.title}</strong>
-                        <button class="ed-btn" onclick="event.stopPropagation(); app.logic.openAddModal(${s.id})">수정</button>
-                    </div>`).join('') || "곡을 등록해주세요.";
             }
+            // 모든 가능한 연습(1마디~N마디)을 무작위로 섞어서 대기열 생성
+            app.practice.queue = combinations.sort(() => Math.random() - 0.5);
         },
-        practice: {
-            queue: [], curBatch: [], curCount: 1,
-            init: async (id) => {
-                app.state.curSong = app.state.songs.find(s => s.id === id);
-                const pdf = await app.db.getPDF(id);
-                if(pdf) app.state.pdfDoc = await pdfJS.getDocument(new Uint8Array(await pdf.arrayBuffer())).promise;
-                app.logic.renderSongs();
-                app.practice.curCount = app.state.curSong.min;
-                app.practice.resetQueue();
-                app.practice.next();
-                if(!document.querySelector('#sec-practice .sec-content').classList.contains('open')) app.ui.toggle('practice');
-            },
-            resetQueue: () => {
-                let total = 0;
-                Object.values(app.state.curSong.pageData).forEach(p => p.forEach(st => total += st.measures.length));
-                app.practice.queue = Array.from({length: total}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
-            },
-            next: () => {
+        next: () => {
+            if(app.practice.queue.length === 0) {
+                // 큐가 비었다면 새로고침 시도 (그 사이 조건 만족한 게 생겼을 수 있음)
+                app.practice.refreshQueue();
                 if(app.practice.queue.length === 0) {
-                    if(app.practice.curCount < app.state.curSong.max) {
-                        app.practice.curCount++; app.practice.resetQueue();
-                        alert(`${app.practice.curCount}마디 연속 정복 단계!`);
-                    } else { alert("대단합니다! 모든 마디를 정복했습니다."); return; }
-                }
-                app.practice.curBatch = [];
-                for(let i=0; i<app.practice.curCount; i++) { if(app.practice.queue.length > 0) app.practice.curBatch.push(app.practice.queue.shift()); }
-                app.practice.render();
-            },
-            render: () => {
-                document.getElementById('practice-area').innerHTML = `
-                    <div style="text-align:center;">
-                        <h2 style="color:var(--accent)">${app.practice.curBatch.join(', ')} 마디 훈련</h2>
-                        <div id="measure-render-area" style="display:flex; flex-wrap:wrap; justify-content:center; gap:10px; background:#fff; padding:20px; border-radius:15px; min-height:150px;"></div>
-                        <div style="display:flex; gap:10px; margin-top:20px;">
-                            <button class="btn-eval" style="background:var(--green)" onclick="app.practice.evaluate('상')">상 (통과)</button>
-                            <button class="btn-eval" style="background:#f1c40f" onclick="app.practice.evaluate('중')">중 (유지)</button>
-                            <button class="btn-eval" style="background:var(--accent)" onclick="app.practice.evaluate('하')">하 (반복)</button>
-                        </div>
-                    </div>`;
-                app.practice.drawMeasures();
-            },
-            evaluate: (grade) => {
-                if(grade !== '상') app.practice.queue.push(...app.practice.curBatch);
-                app.practice.next();
-            },
-            drawMeasures: async () => {
-                const s = app.state.curSong; const flatM = [];
-                // 모든 페이지의 마디를 평탄화하여 인덱스 매칭
-                const sortedPages = Object.keys(s.pageData).sort((a,b) => parseInt(a)-parseInt(b));
-                sortedPages.forEach(p => {
-                    s.pageData[p].forEach(st => {
-                        st.measures.forEach(m => flatM.push({...m, y: st.y, h: st.h, pg: p}));
-                    });
-                });
-
-                const container = document.getElementById('measure-render-area');
-                for(let mIdx of app.practice.curBatch) {
-                    const d = flatM[mIdx-1]; if(!d) continue;
-                    const can = document.createElement('canvas'); 
-                    can.width = d.w; can.height = d.h; can.style.height = "120px";
-                    const pg = await app.state.pdfDoc.getPage(parseInt(d.pg));
-                    const vp = pg.getViewport({scale: 2.0}); 
-                    const tCan = document.createElement('canvas'); 
-                    tCan.width = vp.width; tCan.height = vp.height;
-                    await pg.render({canvasContext: tCan.getContext('2d'), viewport: vp}).promise;
-                    can.getContext('2d').drawImage(tCan, d.x*1.33, d.y*1.33, d.w*1.33, d.h*1.33, 0, 0, d.w, d.h);
-                    container.appendChild(can);
+                    document.getElementById('practice-area').innerHTML = "<h3>모든 마디를 정복했습니다!</h3>";
+                    return;
                 }
             }
+            app.practice.curBatch = app.practice.queue.shift() || [];
+            app.practice.render();
         },
-        editor: {
-            open: async () => {
-                const id = document.getElementById('edit-song-id').value;
-                if(id && !app.state.pdfDoc) {
-                    const blob = await app.db.getPDF(id);
-                    if(blob) app.state.pdfDoc = await pdfJS.getDocument(new Uint8Array(await blob.arrayBuffer())).promise;
-                }
-                app.ui.modal('editor-overlay', true);
-                app.editor.render(); app.editor.initSidebar();
-            },
-            finish: () => { app.ui.modal('editor-overlay', false); },
-            render: async () => {
-                const pg = await app.state.pdfDoc.getPage(app.state.curPage);
-                const vp = pg.getViewport({scale: 1.5});
-                const pc = document.getElementById('pdf-canvas'), ic = document.getElementById('interaction-canvas');
-                pc.width = ic.width = vp.width; pc.height = ic.height = vp.height;
-                await pg.render({canvasContext: pc.getContext('2d'), viewport: vp}).promise;
-                document.getElementById('pg-info').innerText = `${app.state.curPage} / ${app.state.pdfDoc.numPages}`;
-                app.editor.initInteraction(); app.editor.refreshUI();
-            },
-            initInteraction: () => {
-                const ic = document.getElementById('interaction-canvas');
-                let drawing = false, sx, sy;
-                const getP = (e) => {
-                    const r = ic.getBoundingClientRect();
-                    const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
-                    const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
-                    return { x: x * (ic.width/r.width), y: y * (ic.height/r.height) };
-                }
-                ic.onmousedown = ic.ontouchstart = (e) => { drawing = true; const p = getP(e); sx = p.x; sy = p.y; };
-                ic.onmousemove = ic.ontouchmove = (e) => {
-                    if(!drawing) return; const p = getP(e);
-                    const ctx = ic.getContext('2d'); ctx.clearRect(0,0,ic.width,ic.height);
-                    ctx.strokeStyle = '#3498db'; ctx.setLineDash([5,5]); ctx.strokeRect(sx, sy, p.x-sx, p.y-sy);
+        render: () => {
+            const area = document.getElementById('practice-area');
+            const batchKey = app.practice.curBatch.join('-');
+            area.innerHTML = `
+                <h2 style="color:var(--dark)">${batchKey} 마디 연습 <small>(${app.practice.curBatch.length}연속)</small></h2>
+                <div class="m-render-box" id="m-render"></div>
+                <div class="recorder-box">
+                    <div id="rec-status" style="font-weight:800; color:var(--accent)">준비됨</div>
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <button class="ed-btn" onclick="app.practice.toggleRec()"><i class="fa-solid fa-microphone"></i> 녹음</button>
+                        <audio id="audio-player" controls style="display:none; height:40px;"></audio>
+                    </div>
+                </div>
+                <div class="eval-group">
+                    <button class="btn-eval" style="background:var(--green)" onclick="app.practice.evaluate('상')">상 (정복)</button>
+                    <button class="btn-eval" style="background:var(--orange)" onclick="app.practice.evaluate('중')">중 (보통)</button>
+                    <button class="btn-eval" style="background:var(--accent)" onclick="app.practice.evaluate('하')">하 (미흡)</button>
+                </div>
+                <div class="queue-preview">
+                    <strong>다음에 나올 연습들 (랜덤):</strong><br>
+                    ${app.practice.queue.slice(0, 5).map(b => `[${b.join('-')}]`).join(' , ')} ...
+                </div>
+                <div class="tab-container" id="stat-tabs"></div>
+            `;
+            app.practice.drawMeasures();
+            app.practice.renderTabs();
+        },
+        drawMeasures: async () => {
+            const flat = app.editor.getFlatMeasures();
+            const container = document.getElementById('m-render');
+            for(let idx of app.practice.curBatch) {
+                const d = flat[idx-1]; if(!d) continue;
+                const can = document.createElement('canvas');
+                can.width = d.w; can.height = d.h; can.style.height = "130px";
+                const pg = await app.state.pdfDoc.getPage(parseInt(d.pg));
+                const vp = pg.getViewport({scale: 2.0});
+                const tCan = document.createElement('canvas'); tCan.width = vp.width; tCan.height = vp.height;
+                await pg.render({canvasContext: tCan.getContext('2d'), viewport: vp}).promise;
+                can.getContext('2d').drawImage(tCan, d.x*1.33, d.y*1.33, d.w*1.33, d.h*1.33, 0, 0, d.w, d.h);
+                container.appendChild(can);
+            }
+        },
+        evaluate: (res) => {
+            const key = app.practice.curBatch.join(',');
+            app.practice.evals[key] = res;
+            const sIdx = app.state.songs.findIndex(s => s.id === app.state.curSong.id);
+            app.state.songs[sIdx].results = app.practice.evals;
+            app.data.save();
+            
+            // 평가 후 즉시 전체 대기열 재구성 (조건 만족한 상위 마디가 즉시 반영됨)
+            app.practice.refreshQueue();
+            app.practice.next();
+        },
+        toggleRec: async () => {
+            if(app.practice.mediaRecorder?.state === "recording") {
+                app.practice.mediaRecorder.stop();
+                document.getElementById('rec-status').innerText = "저장됨";
+            } else {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                app.practice.mediaRecorder = new MediaRecorder(stream);
+                app.practice.audioChunks = [];
+                app.practice.mediaRecorder.ondataavailable = e => app.practice.audioChunks.push(e.data);
+                app.practice.mediaRecorder.onstop = () => {
+                    const blob = new Blob(app.practice.audioChunks, { type: 'audio/mp4' });
+                    const player = document.getElementById('audio-player');
+                    player.src = URL.createObjectURL(blob); player.style.display = 'block';
                 };
-                ic.onmouseup = ic.ontouchend = (e) => {
-                    if(!drawing) return; drawing = false; const p = getP(e);
-                    app.editor.saveHist(); app.editor.autoInfer(Math.min(sx, p.x), Math.min(sy, p.y), Math.abs(p.x-sx), Math.abs(p.y-sy));
-                };
-            },
-            autoInfer: (bx, by, bw, bh) => {
-                if(bw < 20 || bh < 20) return;
-                let staffs = []; let cy = by;
-                while (cy + bh <= document.getElementById('pdf-canvas').height) {
-                    let ms = [], cx = bx;
-                    while (cx + bw <= document.getElementById('pdf-canvas').width) { ms.push({ x: cx, w: bw }); cx += bw; }
-                    staffs.push({ y: cy, h: bh, measures: ms }); cy += (bh * 1.6);
-                }
-                app.state.pageData[app.state.curPage] = staffs; app.editor.refreshUI();
-            },
-            refreshUI: () => {
-                const ui = document.getElementById('ui-layer'); ui.innerHTML = '';
-                const staffs = app.state.pageData[app.state.curPage] || [];
-                
-                staffs.forEach((st, si) => {
-                    st.measures.forEach((m, mi) => {
-                        const box = document.createElement('div'); box.className = 'measure-box';
-                        box.style = `left:${m.x}px; top:${st.y}px; width:${m.w}px; height:${st.h}px;`;
-                        const h = document.createElement('div'); h.className = 'measure-handle';
-                        h.innerHTML = `<span>M</span><i class="fa-solid fa-plus" onclick="app.editor.modM(${si},${mi},1)"></i><i class="fa-solid fa-minus" onclick="app.editor.modM(${si},${mi},-1)"></i>`;
-                        box.appendChild(h);
-                        if(mi===0) {
-                            const sc = document.createElement('div'); sc.className = 'staff-ctrl';
-                            sc.innerHTML = `<button class="btn-staff" style="background:var(--blue)" onclick="app.editor.modS(${si},1)">+</button><button class="btn-staff" style="background:#95a5a6" onclick="app.editor.modS(${si},-1)">-</button>`;
-                            box.appendChild(sc);
-                            box.appendChild(app.editor.createResizer(si, mi, 'left')); box.appendChild(app.editor.createResizer(si, mi, 'top'));
-                        }
-                        box.appendChild(app.editor.createResizer(si, mi, 'right')); box.appendChild(app.editor.createResizer(si, mi, 'bottom'));
-                        ui.appendChild(box);
-                    });
+                app.practice.mediaRecorder.start();
+                document.getElementById('rec-status').innerText = "녹음 중...";
+            }
+        },
+        renderTabs: () => {
+            const container = document.getElementById('stat-tabs');
+            const curStep = app.practice.displayTab || 1;
+            let html = `<div class="tab-menu">`;
+            for(let i=app.state.curSong.min; i<=app.state.curSong.max; i++) 
+                html += `<button class="tab-btn ${curStep === i ? 'active' : ''}" onclick="app.practice.setTab(${i})">${i}마디 모음</button>`;
+            html += `</div><div class="tab-grid">`;
+            const allM = app.editor.getFlatMeasures();
+            for(let i=0; i <= allM.length - curStep; i++) {
+                const batch = []; for(let j=0; j<curStep; j++) batch.push(i+j+1);
+                const k = batch.join(','); const res = app.practice.evals[k] || '미연습';
+                html += `<div class="status-cell status-${res}">${batch.join('-')}<br>${res}</div>`;
+            }
+            container.innerHTML = html + `</div>`;
+        },
+        setTab: (t) => { app.practice.displayTab = t; app.practice.renderTabs(); }
+    },
+
+    // 2. 에디터 (툴바 100% 기능)
+    editor: {
+        open: async () => {
+            const id = document.getElementById('edit-song-id').value;
+            if(id && !app.state.pdfDoc) {
+                const b = await app.db.getPDF(id);
+                if(b) app.state.pdfDoc = await pdfJS.getDocument(new Uint8Array(await b.arrayBuffer())).promise;
+            }
+            app.ui.modal('editor-overlay', true); app.editor.render(); app.editor.initSidebar();
+        },
+        finish: () => app.ui.modal('editor-overlay', false),
+        render: async () => {
+            const pg = await app.state.pdfDoc.getPage(app.state.curPage);
+            const vp = pg.getViewport({scale: 1.5});
+            const pc = document.getElementById('pdf-canvas'), ic = document.getElementById('interaction-canvas');
+            pc.width = ic.width = vp.width; pc.height = ic.height = vp.height;
+            await pg.render({canvasContext: pc.getContext('2d'), viewport: vp}).promise;
+            document.getElementById('pg-info').innerText = `${app.state.curPage} / ${app.state.pdfDoc.numPages}`;
+            app.editor.initInteraction(); app.editor.refreshUI();
+        },
+        getFlatMeasures: () => {
+            const flat = [];
+            Object.keys(app.state.pageData).sort((a,b)=>a-b).forEach(p => {
+                (app.state.pageData[p] || []).forEach(st => {
+                    st.measures.forEach(m => flat.push({...m, y: st.y, h: st.h, pg: p}));
                 });
-                app.editor.updatePreview();
-            },
-            createResizer: (si, mi, side) => {
-                const el = document.createElement('div'); el.className = `resizer resizer-${(side==='top'||side==='bottom')?'h':'v'} resizer-${side}`;
-                const start = (e) => {
-                    e.preventDefault(); e.stopPropagation(); app.editor.saveHist();
-                    const st = app.state.pageData[app.state.curPage][si], m = st.measures[mi];
-                    let sX = e.touches ? e.touches[0].clientX : e.clientX, sY = e.touches ? e.touches[0].clientY : e.clientY;
-                    let iW = m.w, iH = st.h, iY = st.y, iX = m.x;
-                    const move = (ev) => {
-                        let cX = ev.touches ? ev.touches[0].clientX : ev.clientX, cY = ev.touches ? ev.touches[0].clientY : ev.clientY;
-                        if(side==='right') { m.w = Math.max(10, iW + (cX-sX)); st.measures.slice(mi+1).forEach((nm, ni) => nm.x = st.measures[mi+ni].x+st.measures[mi+ni].w); }
-                        else if(side==='left') { m.x = iX + (cX-sX); m.w = Math.max(10, iW - (cX-sX)); }
-                        else if(side==='bottom') st.h = Math.max(10, iH + (cY-sY));
-                        else if(side==='top') { st.y = iY + (cY-sY); st.h = Math.max(10, iH - (cY-sY)); }
-                        app.editor.refreshUI();
-                    };
-                    const end = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', end); window.removeEventListener('touchmove', move); window.removeEventListener('touchend', end); };
-                    window.addEventListener('mousemove', move); window.addEventListener('mouseup', end); window.addEventListener('touchmove', move); window.addEventListener('touchend', end);
+            });
+            return flat;
+        },
+        initInteraction: () => {
+            const ic = document.getElementById('interaction-canvas'); let drawing = false, sx, sy;
+            const getP = e => { const r = ic.getBoundingClientRect(); return { x: ((e.touches?e.touches[0].clientX:e.clientX)-r.left)*(ic.width/r.width), y: ((e.touches?e.touches[0].clientY:e.clientY)-r.top)*(ic.height/r.height) }; };
+            ic.onmousedown = ic.ontouchstart = e => { drawing = true; const p = getP(e); sx = p.x; sy = p.y; };
+            ic.onmousemove = ic.ontouchmove = e => { if(!drawing) return; const p = getP(e), ctx = ic.getContext('2d'); ctx.clearRect(0,0,ic.width,ic.height); ctx.strokeStyle = '#3498db'; ctx.strokeRect(sx, sy, p.x-sx, p.y-sy); };
+            ic.onmouseup = ic.ontouchend = e => { if(!drawing) return; drawing = false; const p = getP(e); app.editor.saveHist(); app.editor.autoInfer(Math.min(sx, p.x), Math.min(sy, p.y), Math.abs(p.x-sx), Math.abs(p.y-sy)); };
+        },
+        autoInfer: (bx, by, bw, bh) => {
+            if(bw < 30) return; let staffs = [], cy = by;
+            while (cy + bh <= document.getElementById('pdf-canvas').height) {
+                let ms = [], cx = bx; while (cx + bw <= document.getElementById('pdf-canvas').width) { ms.push({ x: cx, w: bw }); cx += bw; }
+                staffs.push({ y: cy, h: bh, measures: ms }); cy += (bh * 1.6);
+            }
+            app.state.pageData[app.state.curPage] = staffs; app.editor.refreshUI();
+        },
+        refreshUI: () => {
+            const ui = document.getElementById('ui-layer'); ui.innerHTML = '';
+            (app.state.pageData[app.state.curPage] || []).forEach((st, si) => {
+                st.measures.forEach((m, mi) => {
+                    const box = document.createElement('div'); box.className = 'measure-box'; box.style = `left:${m.x}px; top:${st.y}px; width:${m.w}px; height:${st.h}px;`;
+                    const h = document.createElement('div'); h.className = 'measure-handle'; h.innerHTML = `<i class="fa-solid fa-plus" onclick="app.editor.modM(${si},${mi},1)"></i><i class="fa-solid fa-minus" onclick="app.editor.modM(${si},${mi},-1)"></i>`;
+                    box.appendChild(h);
+                    if(mi===0) {
+                        const sc = document.createElement('div'); sc.className = 'staff-ctrl'; sc.innerHTML = `<button class="btn-staff" style="background:var(--blue)" onclick="app.editor.modS(${si},1)">+</button><button class="btn-staff" style="background:#95a5a6" onclick="app.editor.modS(${si},-1)">-</button>`;
+                        box.append(sc, app.editor.createResizer(si, mi, 'left'), app.editor.createResizer(si, mi, 'top'));
+                    }
+                    box.append(app.editor.createResizer(si, mi, 'right'), app.editor.createResizer(si, mi, 'bottom')); ui.appendChild(box);
+                });
+            });
+            app.editor.updatePreview();
+        },
+        createResizer: (si, mi, side) => {
+            const el = document.createElement('div'); el.className = `resizer resizer-${(side==='top'||side==='bottom')?'h':'v'} resizer-${side}`;
+            el.onmousedown = el.ontouchstart = e => {
+                e.preventDefault(); app.editor.saveHist();
+                const st = app.state.pageData[app.state.curPage][si], m = st.measures[mi];
+                let sX = e.touches?e.touches[0].clientX:e.clientX, sY = e.touches?e.touches[0].clientY:e.clientY, iW = m.w, iH = st.h, iY = st.y, iX = m.x;
+                const move = ev => {
+                    let cX = ev.touches?ev.touches[0].clientX:ev.clientX, cY = ev.touches?ev.touches[0].clientY:ev.clientY;
+                    if(side==='right') { m.w = Math.max(10, iW + (cX-sX)); st.measures.slice(mi+1).forEach((nm, ni) => nm.x = st.measures[mi+ni].x+st.measures[mi+ni].w); }
+                    else if(side==='left') { m.x = iX + (cX-sX); m.w = Math.max(10, iW - (cX-sX)); }
+                    else if(side==='bottom') st.h = Math.max(10, iH + (cY-sY));
+                    else if(side==='top') { st.y = iY + (cY-sY); st.h = Math.max(10, iH - (cY-sY)); }
+                    app.editor.refreshUI();
                 };
-                el.onmousedown = el.ontouchstart = start; return el;
-            },
-            modM: (si, mi, v) => { app.editor.saveHist(); const s = app.state.pageData[app.state.curPage][si]; if(v>0) s.measures.splice(mi+1,0,{x:s.measures[mi].x+s.measures[mi].w, w:s.measures[mi].w}); else if(s.measures.length>1) s.measures.splice(mi,1); app.editor.refreshUI(); },
-            modS: (si, v) => { app.editor.saveHist(); const p = app.state.pageData[app.state.curPage]; if(v>0) { let ns = JSON.parse(JSON.stringify(p[si])); ns.y += (ns.h * 1.5); p.splice(si+1, 0, ns); } else if(p.length>1) p.splice(si,1); app.editor.refreshUI(); },
-            saveHist: () => { app.state.history = app.state.history.slice(0, app.state.hIdx+1); app.state.history.push(JSON.stringify(app.state.pageData)); app.state.hIdx++; },
-            undo: () => { if(app.state.hIdx>0) { app.state.pageData = JSON.parse(app.state.history[--app.state.hIdx]); app.editor.refreshUI(); } },
-            redo: () => { if(app.state.hIdx < app.state.history.length-1) { app.state.pageData = JSON.parse(app.state.history[++app.state.hIdx]); app.editor.refreshUI(); } },
-            updatePreview: () => {
+                const end = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', end); };
+                window.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
+            };
+            return el;
+        },
+        modM: (si, mi, v) => { app.editor.saveHist(); const s = app.state.pageData[app.state.curPage][si]; if(v>0) s.measures.splice(mi+1,0,{x:s.measures[mi].x+s.measures[mi].w, w:s.measures[mi].w}); else if(s.measures.length>1) s.measures.splice(mi,1); app.editor.refreshUI(); },
+        modS: (si, v) => { app.editor.saveHist(); const p = app.state.pageData[app.state.curPage]; if(v>0) { let ns = JSON.parse(JSON.stringify(p[si])); ns.y += (ns.h * 1.5); p.splice(si+1, 0, ns); } else if(p.length>1) p.splice(si,1); app.editor.refreshUI(); },
+        saveHist: () => { app.state.history = app.state.history.slice(0, app.state.hIdx+1); app.state.history.push(JSON.stringify(app.state.pageData)); app.state.hIdx++; },
+        undo: () => { if(app.state.hIdx>0) { app.state.pageData = JSON.parse(app.state.history[--app.state.hIdx]); app.editor.refreshUI(); } },
+        redo: () => { if(app.state.hIdx < app.state.history.length-1) { app.state.pageData = JSON.parse(app.state.history[++app.state.hIdx]); app.editor.refreshUI(); } },
+        updatePreview: () => {
                 const list = document.getElementById('preview-list');
                 list.innerHTML = '';
                 
@@ -483,34 +436,109 @@
                     });
                 }
                 document.getElementById('total-m-count').innerText = `${globalMeasureCount} 마디`;
-            },
-            saveJSON: () => {
-                const blob = new Blob([JSON.stringify(app.state.pageData)], {type:'application/json'});
-                const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-                a.download = `sanjuk_measures.json`; a.click();
-            },
-            loadJSON: (el) => {
-                const r = new FileReader();
-                r.onload = (e) => { app.state.pageData = JSON.parse(e.target.result); app.editor.saveHist(); app.editor.refreshUI(); };
-                r.readAsText(el.files[0]); el.value = "";
-            },
-            movePage: (v) => { if(app.state.pdfDoc && app.state.curPage+v >= 1 && app.state.curPage+v <= app.state.pdfDoc.numPages) { app.state.curPage += v; app.editor.render(); } },
-            initSidebar: () => {
-                const bar = document.getElementById('sidebar-resizer');
-                bar.onmousedown = bar.ontouchstart = () => {
-                    const move = (e) => {
-                        let cx = e.touches ? e.touches[0].clientX : e.clientX;
-                        let nw = window.innerWidth - cx;
-                        if(nw > 150 && nw < 500) document.documentElement.style.setProperty('--sidebar-width', nw + 'px');
-                    };
-                    const end = () => { window.removeEventListener('mousemove', move); window.removeEventListener('touchmove', move); };
-                    window.addEventListener('mousemove', move); window.addEventListener('touchmove', move);
-                    window.addEventListener('mouseup', end); window.addEventListener('touchend', end);
-                };
-            }
+        },
+        saveJSON: () => {
+            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(app.state.pageData)], {type:'application/json'}));
+            a.download = `sanjuk_measures.json`; a.click();
+        },
+        loadJSON: el => {
+            const r = new FileReader(); r.onload = e => { app.state.pageData = JSON.parse(e.target.result); app.editor.saveHist(); app.editor.refreshUI(); };
+            r.readAsText(el.files[0]); el.value = "";
+        },
+        movePage: v => { if(app.state.pdfDoc && app.state.curPage+v >= 1 && app.state.curPage+v <= app.state.pdfDoc.numPages) { app.state.curPage += v; app.editor.render(); } },
+        initSidebar: () => {
+            const bar = document.getElementById('sidebar-resizer');
+            bar.onmousedown = () => {
+                const move = e => { let nw = window.innerWidth - e.clientX; if(nw > 150 && nw < 500) document.documentElement.style.setProperty('--sidebar-width', nw + 'px'); };
+                const end = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', end); };
+                window.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
+            };
         }
-    };
-    window.onload = () => app.data.load();
+    },
+
+    // 3. 데이터 시스템
+    db: {
+        init: () => new Promise(res => {
+            const req = indexedDB.open("SanjukDB", 1);
+            req.onupgradeneeded = e => e.target.result.createObjectStore("pdfs");
+            req.onsuccess = e => { app.state.db = e.target.result; res(); };
+        }),
+        savePDF: (id, blob) => app.state.db.transaction("pdfs", "readwrite").objectStore("pdfs").put(blob, String(id)),
+        getPDF: id => new Promise(res => {
+            const req = app.state.db.transaction("pdfs", "readonly").objectStore("pdfs").get(String(id));
+            req.onsuccess = () => res(req.result);
+        })
+    },
+    data: {
+        save: () => localStorage.setItem('sanjuk_system', JSON.stringify({songs: app.state.songs})),
+        load: async () => {
+            const d = JSON.parse(localStorage.getItem('sanjuk_system') || '{"songs":[]}');
+            app.state.songs = d.songs; await app.db.init(); app.logic.renderSongs();
+        },
+        backup: () => {
+            const data = localStorage.getItem('sanjuk_system');
+            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], {type:'application/json'}));
+            a.download = `sanjuk_backup.json`; a.click();
+        },
+        restore: (el) => {
+            const r = new FileReader(); r.onload = e => {
+                localStorage.setItem('sanjuk_system', e.target.result); location.reload();
+            };
+            r.readAsText(el.files[0]);
+        },
+        reset: () => { if(confirm("모든 정보가 삭제됩니다.")) { localStorage.clear(); indexedDB.deleteDatabase("SanjukDB"); location.reload(); } }
+    },
+    ui: {
+        modal: (id, show) => document.getElementById(id).classList[show?'add':'remove']('active'),
+        toggle: id => {
+            const content = document.querySelector(`#sec-${id} .sec-content`);
+            const isOpen = content.classList.toggle('open');
+            document.querySelector(`#sec-${id} .sec-header i`).className = `fa-solid fa-chevron-${isOpen?'up':'down'}`;
+        }
+    },
+    pdf: {
+        handle: async el => {
+            const f = el.files[0]; if(!f) return;
+            const buffer = await f.arrayBuffer();
+            app.state.tempBlob = new Blob([buffer], {type: 'application/pdf'});
+            app.state.pdfDoc = await pdfJS.getDocument(new Uint8Array(buffer)).promise;
+            document.getElementById('open-ed-btn').style.display = 'flex';
+        }
+    },
+    logic: {
+        openAddModal: (id = null) => {
+            const s = id ? app.state.songs.find(x => x.id === id) : null;
+            document.getElementById('edit-song-id').value = s?.id || "";
+            document.getElementById('in-title').value = s?.title || "";
+            app.state.pageData = s ? JSON.parse(JSON.stringify(s.pageData)) : {};
+            document.getElementById('in-min').value = s?.min || 1;
+            document.getElementById('in-max').value = s?.max || 4;
+            document.getElementById('open-ed-btn').style.display = s ? 'flex' : 'none';
+            app.ui.modal('add-song-modal', true);
+        },
+        saveSong: async () => {
+            const id = parseInt(document.getElementById('edit-song-id').value) || Date.now();
+            const song = { 
+                id, title: document.getElementById('in-title').value || "무제", 
+                min: parseInt(document.getElementById('in-min').value), 
+                max: parseInt(document.getElementById('in-max').value), 
+                pageData: app.state.pageData,
+                results: app.state.songs.find(s=>s.id===id)?.results || {} 
+            };
+            const idx = app.state.songs.findIndex(x => x.id == id);
+            if(idx > -1) app.state.songs[idx] = song; else app.state.songs.push(song);
+            if(app.state.tempBlob) await app.db.savePDF(id, app.state.tempBlob);
+            app.data.save(); app.logic.renderSongs(); app.ui.modal('add-song-modal', false);
+        },
+        renderSongs: () => {
+            document.getElementById('song-list').innerHTML = app.state.songs.map(s => `
+                <div class="song-card ${app.state.curSong?.id === s.id ? 'active' : ''}" onclick="app.practice.init(${s.id})">
+                    <strong>${s.title}</strong><button class="ed-btn" onclick="event.stopPropagation(); app.logic.openAddModal(${s.id})">수정</button>
+                </div>`).join('') || "등록된 곡이 없습니다.";
+        }
+    }
+};
+window.onload = () => app.data.load();
 </script>
 </body>
 </html>
