@@ -81,6 +81,11 @@
         .modal-overlay.active { display: flex; }
         .modal-box { background: white; padding: 35px; border-radius: 24px; width: 90%; max-width: 520px; }
         input[type="text"], input[type="number"] { width: 100%; padding: 14px; border: 2px solid #eee; border-radius: 12px; margin: 8px 0 15px; box-sizing: border-box; font-size: 16px; }
+
+        /* 진행바 스타일 */
+        .progress-container { width: 100%; background: #eee; height: 8px; border-radius: 4px; margin-top: 10px; overflow: hidden; }
+        .progress-bar { background: var(--green); height: 100%; transition: width 0.3s ease; }
+        .song-info { flex: 1; }
     </style>
 </head>
 <body>
@@ -101,7 +106,7 @@
     </section>
     
     <section id="sec-practice">
-        <div class="sec-header" onclick="app.ui.toggle('practice')"><span>연습 모드 (하이브리드 대기열)</span><i class="fa-solid fa-chevron-down"></i></div>
+        <div class="sec-header" onclick="app.ui.toggle('practice')"><span>연습 모드</span><i class="fa-solid fa-chevron-down"></i></div>
         <div class="sec-content" id="practice-area">곡을 선택해주세요.</div>
     </section>
 </div>
@@ -161,6 +166,10 @@
             <button class="ed-btn accent" style="flex:1; justify-content:center; background:var(--green)" onclick="app.logic.saveSong()">저장</button>
             <button class="ed-btn" style="flex:1; justify-content:center;" onclick="app.ui.modal('add-song-modal', false)">취소</button>
         </div>
+        <div style="display:flex; gap:12px; margin-top:10px;">
+            <button class="ed-btn" style="flex:1; color:var(--orange);" onclick="app.logic.resetProgress()">기록 리셋</button>
+            <button class="ed-btn" style="flex:1; color:var(--accent);" onclick="app.logic.deleteSong()">곡 삭제</button>
+        </div>
     </div>
 </div>
 
@@ -173,53 +182,96 @@ pdfJS.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pd
 const app = {
     state: { pdfDoc: null, songs: [], pageData: {}, history: [], hIdx: -1, curPage: 1, curSong: null, db: null, tempBlob: null },
     
-    // 1. 하이브리드 연습 로직 (준비된 조합은 즉시 등장)
     practice: {
-        queue: [], curBatch: [], evals: {}, mediaRecorder: null, audioChunks: [], audioUrl: null,
+        queue: [], curBatch: [], evals: {}, mediaRecorder: null, audioChunks: [], audioUrl: null, displayTab: 1,
         init: async (id) => {
+            // 1. 상태 초기화
             app.state.curSong = app.state.songs.find(s => s.id === id);
-            const pdf = await app.db.getPDF(id);
-            if(pdf) app.state.pdfDoc = await pdfJS.getDocument(new Uint8Array(await pdf.arrayBuffer())).promise;
+            if(!app.state.curSong) return;
+
+            app.state.pageData = JSON.parse(JSON.stringify(app.state.curSong.pageData || {}));
             app.practice.evals = app.state.curSong.results || {};
+            app.state.curPage = 1;
+
+            // 2. PDF 로드
+            const pdfBlob = await app.db.getPDF(id);
+            if(pdfBlob) {
+                const arrayBuffer = await pdfBlob.arrayBuffer();
+                app.state.pdfDoc = await pdfJS.getDocument(new Uint8Array(arrayBuffer)).promise;
+            } else {
+                app.state.pdfDoc = null;
+            }
+
+            // 3. UI 업데이트 및 대기열 생성
             app.practice.refreshQueue();
             app.practice.next();
+            app.logic.renderSongs(); // 활성 상태 표시용
             if(!document.querySelector('#sec-practice .sec-content').classList.contains('open')) app.ui.toggle('practice');
         },
         refreshQueue: () => {
             const allM = app.editor.getFlatMeasures();
             let combinations = [];
+            const min = parseInt(app.state.curSong.min) || 1;
+            const max = parseInt(app.state.curSong.max) || 4;
             
-            // 핵심 수정: 현재 단계(step)에 구애받지 않고 min ~ max까지 모든 조합을 체크
-            for (let s = app.state.curSong.min; s <= app.state.curSong.max; s++) {
+            // 1. 낮은 마디 수(min)부터 높은 마디 수(max)까지 순차적으로 검토
+            for (let s = min; s <= max; s++) {
+                let levelCombinations = [];
                 for (let i = 0; i <= allM.length - s; i++) {
                     const batch = [];
                     for (let j = 0; j < s; j++) batch.push(i + j + 1);
-                    
-                    let canAdd = true;
-                    // 진입 조건: 상위 마디(s > 1)는 하위 조각들이 '하'가 없고 최소 하나가 '상'이어야 함
-                    if (s > 1) {
-                        const subKey1 = batch.slice(0, -1).join(',');
-                        const subKey2 = batch.slice(1).join(',');
-                        const res1 = app.practice.evals[subKey1] || '미연습';
-                        const res2 = app.practice.evals[subKey2] || '미연습';
-                        
-                        if(res1 === '하' || res1 === '미연습' || res2 === '하' || res2 === '미연습') canAdd = false;
-                        if(res1 !== '상' && res2 !== '상') canAdd = false;
-                    }
-                    
                     const key = batch.join(',');
-                    // 아직 이 조합을 완벽히 정복('상')하지 않았고 조건을 만족하면 큐 후보
-                    if (app.practice.evals[key] !== '상' && canAdd) {
-                        combinations.push(batch);
+        
+                    // 이미 정복(상)한 조합은 제외
+                    if (app.practice.evals[key] === '상') continue;
+        
+                    let canAdd = true;
+        
+                    // 2. 단계별 잠금 로직 (n마디 연습이 나오기 위한 조건)
+                    if (s > min) {
+                        const subKey1 = batch.slice(0, -1).join(','); // 앞쪽 n-1 마디
+                        const subKey2 = batch.slice(1).join(',');    // 뒤쪽 n-1 마디
+                        
+                        const res1 = app.practice.evals[subKey1];
+                        const res2 = app.practice.evals[subKey2];
+        
+                        // 조건: 하위 조합 중 하나라도 '상'이어야 하며, '하'가 하나라도 있으면 안 됨
+                        const hasMasteredSub = (res1 === '상' || res2 === '상');
+                        const hasFailedSub = (res1 === '하' || res2 === '하');
+        
+                        if (!hasMasteredSub || hasFailedSub) {
+                            canAdd = false;
+                        }
+                    }
+        
+                    if (canAdd) {
+                        levelCombinations.push(batch);
+                    }
+                }
+        
+                // 3. 현재 마디 수(s)에서 연습할 게 있다면 이것들만 대기열에 넣고 중단
+                // 이렇게 해야 낮은 마디 수를 먼저 다 깨야 다음 마디 수로 넘어감
+                if (levelCombinations.length > 0) {
+                    combinations = levelCombinations.sort(() => Math.random() - 0.5);
+                    break; 
+                }
+            }
+
+            // 4. 모든 단계가 꽉 막혔을 때를 대비한 최소 보장 로직
+            if (combinations.length === 0) {
+                for (let i = 0; i <= allM.length - min; i++) {
+                    const fallback = [];
+                    for (let j = 0; j < min; j++) fallback.push(i + j + 1);
+                    if (app.practice.evals[fallback.join(',')] !== '상') {
+                        combinations.push(fallback);
                     }
                 }
             }
-            // 모든 가능한 연습(1마디~N마디)을 무작위로 섞어서 대기열 생성
-            app.practice.queue = combinations.sort(() => Math.random() - 0.5);
+        
+            app.practice.queue = combinations;
         },
         next: () => {
             if(app.practice.queue.length === 0) {
-                // 큐가 비었다면 새로고침 시도 (그 사이 조건 만족한 게 생겼을 수 있음)
                 app.practice.refreshQueue();
                 if(app.practice.queue.length === 0) {
                     document.getElementById('practice-area').innerHTML = "<h3>모든 마디를 정복했습니다!</h3>";
@@ -231,6 +283,7 @@ const app = {
         },
         render: () => {
             const area = document.getElementById('practice-area');
+            if(!app.state.curSong) return;
             const batchKey = app.practice.curBatch.join('-');
             area.innerHTML = `
                 <h2 style="color:var(--dark)">${batchKey} 마디 연습 <small>(${app.practice.curBatch.length}연속)</small></h2>
@@ -259,6 +312,7 @@ const app = {
         drawMeasures: async () => {
             const flat = app.editor.getFlatMeasures();
             const container = document.getElementById('m-render');
+            if(!app.state.pdfDoc) return;
             for(let idx of app.practice.curBatch) {
                 const d = flat[idx-1]; if(!d) continue;
                 const can = document.createElement('canvas');
@@ -277,8 +331,6 @@ const app = {
             const sIdx = app.state.songs.findIndex(s => s.id === app.state.curSong.id);
             app.state.songs[sIdx].results = app.practice.evals;
             app.data.save();
-            
-            // 평가 후 즉시 전체 대기열 재구성 (조건 만족한 상위 마디가 즉시 반영됨)
             app.practice.refreshQueue();
             app.practice.next();
         },
@@ -305,7 +357,7 @@ const app = {
             const curStep = app.practice.displayTab || 1;
             let html = `<div class="tab-menu">`;
             for(let i=app.state.curSong.min; i<=app.state.curSong.max; i++) 
-                html += `<button class="tab-btn ${curStep === i ? 'active' : ''}" onclick="app.practice.setTab(${i})">${i}마디 모음</button>`;
+                html += `<button class="tab-btn ${curStep === i ? 'active' : ''}" onclick="app.practice.setTab(${i})">${i}마디</button>`;
             html += `</div><div class="tab-grid">`;
             const allM = app.editor.getFlatMeasures();
             for(let i=0; i <= allM.length - curStep; i++) {
@@ -318,7 +370,6 @@ const app = {
         setTab: (t) => { app.practice.displayTab = t; app.practice.renderTabs(); }
     },
 
-    // 2. 에디터 (툴바 100% 기능)
     editor: {
         open: async () => {
             const id = document.getElementById('edit-song-id').value;
@@ -330,6 +381,7 @@ const app = {
         },
         finish: () => app.ui.modal('editor-overlay', false),
         render: async () => {
+            if(!app.state.pdfDoc) return;
             const pg = await app.state.pdfDoc.getPage(app.state.curPage);
             const vp = pg.getViewport({scale: 1.5});
             const pc = document.getElementById('pdf-canvas'), ic = document.getElementById('interaction-canvas');
@@ -403,39 +455,31 @@ const app = {
         undo: () => { if(app.state.hIdx>0) { app.state.pageData = JSON.parse(app.state.history[--app.state.hIdx]); app.editor.refreshUI(); } },
         redo: () => { if(app.state.hIdx < app.state.history.length-1) { app.state.pageData = JSON.parse(app.state.history[++app.state.hIdx]); app.editor.refreshUI(); } },
         updatePreview: () => {
-                const list = document.getElementById('preview-list');
-                list.innerHTML = '';
-                
-                let globalMeasureCount = 0;
-                const totalPages = app.state.pdfDoc ? app.state.pdfDoc.numPages : 0;
-
-                // 1페이지부터 전체 마디 순회하며 미리보기 생성
-                for (let p = 1; p <= totalPages; p++) {
-                    const staffs = app.state.pageData[p] || [];
-                    staffs.forEach(st => {
-                        st.measures.forEach(m => {
-                            globalMeasureCount++;
-                            // 현재 보고 있는 페이지만 캔버스 렌더링 (성능)
-                            if (p === app.state.curPage) {
-                                const container = document.createElement('div');
-                                container.className = 'preview-item';
-                                
-                                const numBadge = document.createElement('div');
-                                numBadge.className = 'm-number';
-                                numBadge.innerText = globalMeasureCount;
-                                
-                                const can = document.createElement('canvas');
-                                can.width = m.w; can.height = st.h;
-                                can.getContext('2d').drawImage(document.getElementById('pdf-canvas'), m.x, st.y, m.w, st.h, 0, 0, m.w, st.h);
-                                
-                                container.appendChild(numBadge);
-                                container.appendChild(can);
-                                list.appendChild(container);
-                            }
-                        });
+            const list = document.getElementById('preview-list');
+            list.innerHTML = '';
+            let globalMeasureCount = 0;
+            const totalPages = app.state.pdfDoc ? app.state.pdfDoc.numPages : 0;
+            for (let p = 1; p <= totalPages; p++) {
+                const staffs = app.state.pageData[p] || [];
+                staffs.forEach(st => {
+                    st.measures.forEach(m => {
+                        globalMeasureCount++;
+                        if (p === app.state.curPage) {
+                            const container = document.createElement('div');
+                            container.className = 'preview-item';
+                            const numBadge = document.createElement('div');
+                            numBadge.className = 'm-number';
+                            numBadge.innerText = globalMeasureCount;
+                            const can = document.createElement('canvas');
+                            can.width = m.w; can.height = st.h;
+                            can.getContext('2d').drawImage(document.getElementById('pdf-canvas'), m.x, st.y, m.w, st.h, 0, 0, m.w, st.h);
+                            container.appendChild(numBadge); container.appendChild(can);
+                            list.appendChild(container);
+                        }
                     });
-                }
-                document.getElementById('total-m-count').innerText = `${globalMeasureCount} 마디`;
+                });
+            }
+            document.getElementById('total-m-count').innerText = `${globalMeasureCount} 마디`;
         },
         saveJSON: () => {
             const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(app.state.pageData)], {type:'application/json'}));
@@ -456,7 +500,6 @@ const app = {
         }
     },
 
-    // 3. 데이터 시스템
     db: {
         init: () => new Promise(res => {
             const req = indexedDB.open("SanjukDB", 1);
@@ -465,15 +508,19 @@ const app = {
         }),
         savePDF: (id, blob) => app.state.db.transaction("pdfs", "readwrite").objectStore("pdfs").put(blob, String(id)),
         getPDF: id => new Promise(res => {
+            if(!app.state.db) return res(null);
             const req = app.state.db.transaction("pdfs", "readonly").objectStore("pdfs").get(String(id));
             req.onsuccess = () => res(req.result);
+            req.onerror = () => res(null);
         })
     },
     data: {
         save: () => localStorage.setItem('sanjuk_system', JSON.stringify({songs: app.state.songs})),
         load: async () => {
             const d = JSON.parse(localStorage.getItem('sanjuk_system') || '{"songs":[]}');
-            app.state.songs = d.songs; await app.db.init(); app.logic.renderSongs();
+            app.state.songs = d.songs; 
+            await app.db.init(); 
+            app.logic.renderSongs();
         },
         backup: () => {
             const data = localStorage.getItem('sanjuk_system');
@@ -529,15 +576,52 @@ const app = {
             if(idx > -1) app.state.songs[idx] = song; else app.state.songs.push(song);
             if(app.state.tempBlob) await app.db.savePDF(id, app.state.tempBlob);
             app.data.save(); app.logic.renderSongs(); app.ui.modal('add-song-modal', false);
+            app.state.tempBlob = null; // 초기화
         },
         renderSongs: () => {
-            document.getElementById('song-list').innerHTML = app.state.songs.map(s => `
+            document.getElementById('song-list').innerHTML = app.state.songs.map(s => {
+                const flat = [];
+                Object.keys(s.pageData).forEach(p => {
+                    (s.pageData[p] || []).forEach(st => st.measures.forEach(() => flat.push(1)));
+                });
+                const total = flat.length;
+                const mastered = Object.keys(s.results || {}).filter(k => !k.includes(',') && s.results[k] === '상').length;
+                const percent = total > 0 ? Math.round((mastered / total) * 100) : 0;
+                return `
                 <div class="song-card ${app.state.curSong?.id === s.id ? 'active' : ''}" onclick="app.practice.init(${s.id})">
-                    <strong>${s.title}</strong><button class="ed-btn" onclick="event.stopPropagation(); app.logic.openAddModal(${s.id})">수정</button>
-                </div>`).join('') || "등록된 곡이 없습니다.";
+                    <div class="song-info">
+                        <strong>${s.title}</strong>
+                        <div class="progress-container"><div class="progress-bar" style="width:${percent}%"></div></div>
+                        <small>${percent}% 완료 (${mastered}/${total} 마디)</small>
+                    </div>
+                    <button class="ed-btn" onclick="event.stopPropagation(); app.logic.openAddModal(${s.id})">수정</button>
+                </div>`;
+            }).join('') || "등록된 곡이 없습니다.";
+        },
+        deleteSong: () => {
+            const id = parseInt(document.getElementById('edit-song-id').value);
+            if(id && confirm("이 곡과 모든 마디 설정이 삭제됩니다.")) {
+                app.state.songs = app.state.songs.filter(s => s.id !== id);
+                app.data.save();
+                location.reload(); 
+            }
+        },
+        resetProgress: () => {
+            const id = parseInt(document.getElementById('edit-song-id').value);
+            if(id && confirm("이 곡의 연습 기록(상/중/하)을 모두 초기화할까요?")) {
+                const song = app.state.songs.find(s => s.id === id);
+                if(song) {
+                    song.results = {};
+                    if(app.state.curSong && app.state.curSong.id === id) app.practice.evals = {};
+                }
+                app.data.save();
+                app.logic.renderSongs();
+                app.ui.modal('add-song-modal', false);
+            }
         }
     }
 };
+
 window.onload = () => app.data.load();
 </script>
 </body>
