@@ -173,7 +173,36 @@
     </div>
 </div>
 
-<div class="modal-overlay" id="info-modal"><div class="modal-box"><h3>사용법</h3><p>잘되는 구간은 자동으로 뭉쳐서(연속마디) 나타납니다!</p><button class="ed-btn accent" style="width:100%; justify-content:center;" onclick="app.ui.modal('info-modal', false)">확인</button></div></div>
+<div class="modal-overlay" id="info-modal">
+    <div class="modal-box" style="max-width: 600px; line-height: 1.6;">
+        <h3 style="color: var(--accent); border-bottom: 2px solid #eee; padding-bottom: 10px;">
+            <i class="fa-solid fa-lightbulb"></i> 처음 오셨나요? 사용법 가이드
+        </h3>
+        
+        <div style="max-height: 400px; overflow-y: auto; text-align: left; padding-right: 10px;">
+            <p><strong>1. 곡 등록 및 악보 스캔</strong><br>
+            메인 화면의 <i class="fa-solid fa-plus"></i> 버튼을 눌러 곡 제목을 입력하고 PDF 파일을 업로드하세요.</p>
+
+            <p><strong>2. 마디 에디터 설정 (중요!)</strong><br>
+            [마디 에디터 열기]를 눌러 악보 위를 <strong>마우스나 손가락으로 드래그</strong>하세요. 사각형을 그리면 해당 영역을 기준으로 마디들이 자동으로 생성됩니다. 
+            <br><small>* 생성된 마디의 <i class="fa-solid fa-plus"></i>/<i class="fa-solid fa-minus"></i> 버튼으로 세부 마디 수를 조절할 수 있습니다.</small></p>
+
+            <p><strong>3. 연습 모드 시작</strong><br>
+            등록된 곡을 클릭하면 연습이 시작됩니다. '산적의 마디 정복'은 <strong>지능형 알고리즘</strong>을 사용합니다.
+            <ul>
+                <li>먼저 개별 마디(1마디씩)를 '상'으로 정복하세요.</li>
+                <li>연속된 마디들이 모두 익숙해지면, 앱이 자동으로 <strong>2마디, 3마디씩 묶어서</strong> 더 길게 연습하도록 대기열을 만들어줍니다.</li>
+            </ul></p>
+
+            <p><strong>4. 평가 및 정복</strong><br>
+            연습 후 <strong>[상, 중, 하]</strong> 버튼으로 본인의 숙련도를 평가하세요. '상'을 받은 마디는 다음 단계(더 긴 연결 연습)로 넘어가는 열쇠가 됩니다.</p>
+        </div>
+
+        <button class="ed-btn accent" style="width:100%; justify-content:center; margin-top: 20px;" onclick="app.ui.modal('info-modal', false)">
+            이제 연습하러 가기!
+        </button>
+    </div>
+</div>
 
 <script>
 const pdfJS = window['pdfjs-dist/build/pdf'];
