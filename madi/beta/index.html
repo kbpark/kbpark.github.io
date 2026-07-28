@@ -52,7 +52,7 @@
         .ed-canvas-area { flex: 1; overflow: auto; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #cbd5e0; }
         .canvas-container { position: relative; background: white; box-shadow: 0 10px 60px rgba(0,0,0,0.4); }
         #pdf-canvas { display: block; max-width: 100%; height: auto !important; }
-        #interaction-canvas { position: absolute; inset: 0; z-index: 5; cursor: crosshair; touch-action: none; }
+        #interaction-canvas { position: absolute; inset: 0; z-index: 5; cursor: crosshair; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
         #ui-layer { position: absolute; left: 0; top: 0; z-index: 10; pointer-events: none; transform-origin: top left; }
         .measure-box { position: absolute; border: 2px solid rgba(231, 76, 60, 0.75); }
         .measure-handle { position: absolute; top: -34px; left: -2px; height: 34px; background: var(--accent); color: white; padding: 0 12px; pointer-events: auto; border-radius: 8px 8px 0 0; display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 13px; touch-action: none; }
@@ -116,13 +116,17 @@
     <div class="ed-main">
         <div class="ed-toolbar">
             <button class="ed-btn" onclick="app.editor.movePage(-1)"><i class="fa-solid fa-arrow-left"></i></button>
-            <span id="pg-info" style="font-weight:800; min-width:70px; text-align:center;">1 / 1</span>
+            <span style="font-weight:800; display:flex; align-items:center; gap:6px; white-space:nowrap;">
+                <input id="pg-input" type="number" min="1" value="1"
+                       style="width:56px; padding:8px 4px; margin:0; text-align:center; border:2px solid #eee; border-radius:8px; font-size:15px;"
+                       onchange="app.editor.goPage(this.value)"
+                       onkeydown="if(event.key==='Enter'){app.editor.goPage(this.value); this.blur();}">
+                / <span id="pg-total">1</span>
+            </span>
             <button class="ed-btn" onclick="app.editor.movePage(1)"><i class="fa-solid fa-arrow-right"></i></button>
             <div style="width:1px; height:30px; background:#eee; margin:0 5px;"></div>
             <button class="ed-btn" onclick="app.editor.undo()"><i class="fa-solid fa-rotate-left"></i> Undo</button>
             <button class="ed-btn" onclick="app.editor.redo()"><i class="fa-solid fa-rotate-right"></i> Redo</button>
-            <div style="width:1px; height:30px; background:#eee; margin:0 5px;"></div>
-            <button class="ed-btn accent" style="background:var(--blue)" onclick="app.editor.autoDetect()"><i class="fa-solid fa-wand-magic-sparkles"></i> 자동 마디 검출</button>
             <div style="width:1px; height:30px; background:#eee; margin:0 5px;"></div>
             <button class="ed-btn" onclick="document.getElementById('json-input').click()"><i class="fa-solid fa-file-import"></i> Load</button>
             <button class="ed-btn" onclick="app.editor.saveJSON()"><i class="fa-solid fa-file-export"></i> Save</button>
@@ -187,9 +191,8 @@
             메인 화면의 <i class="fa-solid fa-plus"></i> 버튼을 눌러 곡 제목을 입력하고 PDF 파일을 업로드하세요.</p>
 
             <p><strong>2. 마디 에디터 설정 (중요!)</strong><br>
-            [마디 에디터 열기] 후 상단의 <strong>[자동 마디 검출]</strong> 버튼을 누르면, 악보의 오선과
-            마디선을 분석해 마디를 자동으로 나눕니다(한 줄에 오선 하나인 멜로디/성악 악보에 최적).
-            <br>수동으로 하려면 악보 위를 <strong>마우스나 손가락으로 드래그</strong>해 사각형을 그리면 그 크기로 격자가 생성됩니다.
+            [마디 에디터 열기] 후 악보의 한 마디 위를 <strong>마우스나 손가락으로 드래그</strong>해 사각형을 그리면,
+            그 크기를 기준으로 마디 격자가 생성됩니다.
             <br><small>* 어긋난 부분은 마디의 <i class="fa-solid fa-plus"></i>/<i class="fa-solid fa-minus"></i> 버튼과 테두리 드래그로 보정하세요.</small></p>
 
             <p><strong>3. 연습 모드 시작</strong><br>
@@ -436,7 +439,8 @@ const app = {
             const pc = document.getElementById('pdf-canvas'), ic = document.getElementById('interaction-canvas');
             pc.width = ic.width = vp.width; pc.height = ic.height = vp.height;
             await pg.render({canvasContext: pc.getContext('2d'), viewport: vp}).promise;
-            document.getElementById('pg-info').innerText = `${app.state.curPage} / ${app.state.pdfDoc.numPages}`;
+            document.getElementById('pg-input').value = app.state.curPage;
+            document.getElementById('pg-total').textContent = app.state.pdfDoc.numPages;
             app.editor.initInteraction(); app.editor.refreshUI();
         },
         getFlatMeasures: () => {
@@ -454,31 +458,29 @@ const app = {
                 const r = ic.getBoundingClientRect();
                 return { x: (e.clientX - r.left) * (ic.width / r.width), y: (e.clientY - r.top) * (ic.height / r.height) };
             };
-            // 포인터 이벤트로 마우스·터치·펜을 한 번에 처리(터치 노트북에서 안정적).
-            // 이동/종료는 window 에서 들어 손가락이 캔버스를 벗어나도 계속 추적한다.
+            // 포인터 이벤트 + setPointerCapture: 마우스·터치·펜을 한 번에, 손가락이 캔버스를
+            // 벗어나도 이 캔버스로 이벤트가 계속 오도록 캡처한다(터치 노트북 드로잉의 정석 패턴).
             ic.onpointerdown = e => {
                 e.preventDefault();
+                try { ic.setPointerCapture(e.pointerId); } catch (_) {}
                 drawing = true; const p = getP(e); sx = p.x; sy = p.y;
-                const move = ev => {
-                    if (!drawing) return;
-                    const q = getP(ev), ctx = ic.getContext('2d');
-                    ctx.clearRect(0, 0, ic.width, ic.height);
-                    ctx.strokeStyle = '#3498db'; ctx.lineWidth = 2;
-                    ctx.strokeRect(sx, sy, q.x - sx, q.y - sy);
-                };
-                const end = ev => {
-                    if (!drawing) return; drawing = false;
-                    const q = getP(ev); ic.getContext('2d').clearRect(0, 0, ic.width, ic.height);
-                    window.removeEventListener('pointermove', move);
-                    window.removeEventListener('pointerup', end);
-                    window.removeEventListener('pointercancel', end);
-                    app.editor.saveHist();
-                    app.editor.autoInfer(Math.min(sx, q.x), Math.min(sy, q.y), Math.abs(q.x - sx), Math.abs(q.y - sy));
-                };
-                window.addEventListener('pointermove', move);
-                window.addEventListener('pointerup', end);
-                window.addEventListener('pointercancel', end);
             };
+            ic.onpointermove = e => {
+                if (!drawing) return;
+                const q = getP(e), ctx = ic.getContext('2d');
+                ctx.clearRect(0, 0, ic.width, ic.height);
+                ctx.strokeStyle = '#3498db'; ctx.lineWidth = 2;
+                ctx.strokeRect(sx, sy, q.x - sx, q.y - sy);
+            };
+            const finish = e => {
+                if (!drawing) return; drawing = false;
+                const q = getP(e); ic.getContext('2d').clearRect(0, 0, ic.width, ic.height);
+                try { ic.releasePointerCapture(e.pointerId); } catch (_) {}
+                app.editor.saveHist();
+                app.editor.autoInfer(Math.min(sx, q.x), Math.min(sy, q.y), Math.abs(q.x - sx), Math.abs(q.y - sy));
+            };
+            ic.onpointerup = finish;
+            ic.onpointercancel = finish;
         },
         autoInfer: (bx, by, bw, bh) => {
             if(bw < 30) return; let staffs = [], cy = by;
@@ -487,119 +489,6 @@ const app = {
                 staffs.push({ y: cy, h: bh, measures: ms }); cy += (bh * 1.6);
             }
             app.state.pageData[app.state.curPage] = staffs; app.editor.refreshUI();
-        },
-        // === 자동 마디 검출 (한 줄=오선 하나 악보 대상) ============================
-        // 렌더된 캔버스 픽셀을 분석: 가로 투영으로 오선(5줄)을, 세로 투영으로 마디선을 찾는다.
-        // 좌표는 캔버스 내부 픽셀(스케일 1.5)로 저장 → 기존 구조/연습 화면과 그대로 호환.
-        autoDetect: () => {
-            const pc = document.getElementById('pdf-canvas');
-            if(!pc || !pc.width) { alert('먼저 PDF를 불러오세요.'); return; }
-            if((app.state.pageData[app.state.curPage] || []).length &&
-               !confirm('이 페이지의 기존 마디를 지우고 자동으로 다시 검출할까요?')) return;
-
-            const W = pc.width, H = pc.height;
-            const img = pc.getContext('2d').getImageData(0, 0, W, H).data;
-            const INK = 185;                                   // 휘도 이보다 어두우면 잉크(얇고 흐린 오선도 잡도록 완화)
-            const dark = (x, y) => {
-                const i = (y * W + x) * 4;
-                if (img[i + 3] < 30) return false;             // 투명 배경
-                return (img[i] * 0.299 + img[i + 1] * 0.587 + img[i + 2] * 0.114) < INK;
-            };
-
-            // 1) 가로 투영: 각 행에서 '가장 긴 연속 잉크 구간'(작은 끊김은 이어줌)을 구한다.
-            //    작은 gap 을 이어주어 안티에일리어싱·경미한 기울어짐으로 선이 끊기는 것을 보완.
-            const maxGap = 3;
-            const rowRun = new Array(H).fill(0);
-            for (let y = 0; y < H; y++) {
-                let run = 0, gap = 0, best = 0;
-                for (let x = 0; x < W; x++) {
-                    if (dark(x, y)) { run++; gap = 0; if (run > best) best = run; }
-                    else if (++gap > maxGap) { run = 0; gap = 0; }
-                }
-                rowRun[y] = best;
-            }
-            // 임계값은 페이지 폭이 아니라 '가장 긴 가로선'에 상대적으로 잡는다(여백 큰 악보 대응).
-            let maxRun = 0; for (let y = 0; y < H; y++) if (rowRun[y] > maxRun) maxRun = rowRun[y];
-            const detectLines = (th) => {                      // 오선 '선'들의 중심 y 목록
-                const out = []; let y = 0;
-                while (y < H) {
-                    if (rowRun[y] >= th) { let y2 = y; while (y2 < H && rowRun[y2] >= th) y2++; out.push((y + y2 - 1) / 2); y = y2; }
-                    else y++;
-                }
-                return out;
-            };
-            let lines = detectLines(Math.max(0.4 * W, 0.55 * maxRun));
-            if (lines.length < 5) lines = detectLines(0.5 * maxRun);   // 완화 재시도
-            if (lines.length < 5) lines = detectLines(0.4 * maxRun);   // 추가 완화
-            if (lines.length < 5) {
-                alert(`오선을 찾지 못했습니다.\n(진단: 가장 긴 가로선 = 페이지 폭의 ${Math.round(maxRun / W * 100)}%, 후보 선 ${lines.length}개)\n`
-                    + '스캔이 기울어졌거나 오선이 흐릿할 수 있습니다. 수동으로 그려주세요.');
-                return;
-            }
-
-            // 2) 선들을 간격 급증 지점에서 끊어 '오선 세트(5줄)'로 묶는다.
-            //    med(중앙 간격) ≈ 오선 내부 줄간격이므로, 그 1.8배를 넘으면 다른 오선으로 본다.
-            const gaps = []; for (let i = 1; i < lines.length; i++) gaps.push(lines[i] - lines[i - 1]);
-            const med = [...gaps].sort((a, b) => a - b)[Math.floor(gaps.length / 2)] || 1;
-            const raw = []; let cur = [lines[0]];
-            for (let i = 1; i < lines.length; i++) {
-                if (lines[i] - lines[i - 1] > med * 1.8) { raw.push(cur); cur = [lines[i]]; }
-                else cur.push(lines[i]);
-            }
-            raw.push(cur);
-            // 5줄 오선으로 정규화: 촘촘히 붙어 8줄 이상 뭉친 덩어리는 5개씩 잘라 여러 오선으로 분리
-            // (한 줄에 오선 하나인 악보 가정). 4줄 미만 조각은 잡음으로 버린다.
-            const sets = [];
-            for (const g of raw) {
-                if (g.length >= 4 && g.length <= 7) sets.push(g);
-                else if (g.length >= 8) for (let i = 0; i + 5 <= g.length; i += 5) sets.push(g.slice(i, i + 5));
-            }
-            if (!sets.length) { alert('오선 세트를 인식하지 못했습니다. 수동으로 그려주세요.'); return; }
-
-            // 3) 오선 세트별로 좌우 끝과 마디선을 찾아 마디 구획 생성.
-            const staffs = [];
-            for (let s = 0; s < sets.length; s++) {
-                const g = sets[s], topL = Math.round(g[0]), botL = Math.round(g[g.length - 1]);
-                const span = (botL - topL) || 1, midY = Math.round((topL + botL) / 2);
-                // 좌우 끝: 오선 위/중간/아래 행에서 잉크 시작·끝 열
-                let xs = W, xe = 0;
-                for (let x = 0; x < W; x++) if (dark(x, topL) || dark(x, midY) || dark(x, botL)) { if (x < xs) xs = x; if (x > xe) xe = x; }
-                if (xe <= xs) { xs = 0; xe = W - 1; }
-                // 마디선: 열마다 [topL,botL] 안 '가장 긴 연속 잉크'가 오선 높이의 대부분이면 마디선
-                const need = span * 0.82, cols = [];
-                for (let x = xs; x <= xe; x++) {
-                    let run = 0, best = 0;
-                    for (let y = topL; y <= botL; y++) { if (dark(x, y)) { if (++run > best) best = run; } else run = 0; }
-                    if (best >= need) cols.push(x);
-                }
-                const bars = [];                               // 인접 열 병합 → 마디선 x
-                for (let i = 0; i < cols.length; i++) { let j = i; while (j + 1 < cols.length && cols[j + 1] - cols[j] <= 3) j++; bars.push(Math.round((cols[i] + cols[j]) / 2)); i = j; }
-                let bounds = [xs, ...bars, xe].sort((a, b) => a - b).filter((v, i, a) => i === 0 || v - a[i - 1] > 4);
-
-                // 세로 밴드(음표·기둥 포함): 오선 높이만큼 위아래 확장, 이웃과는 중점에서 클램프
-                let yTop = topL - span, yBot = botL + span;
-                if (s > 0) { const p = sets[s - 1]; yTop = Math.max(yTop, (p[p.length - 1] + topL) / 2); }
-                if (s < sets.length - 1) { const n = sets[s + 1]; yBot = Math.min(yBot, (botL + n[0]) / 2); }
-                yTop = Math.max(0, yTop); yBot = Math.min(H, yBot);
-
-                // 경계 사이 구획 → 마디. 너무 얇은 조각(음자리표/조표)은 다음(마지막이면 이전) 마디에 합침.
-                const segs = []; for (let i = 0; i < bounds.length - 1; i++) segs.push({ x: bounds[i], w: bounds[i + 1] - bounds[i] });
-                const minW = Math.max(12, span * 0.6);
-                for (let i = 0; i < segs.length; i++) {
-                    if (segs[i].w < minW) {
-                        if (i + 1 < segs.length) { segs[i + 1].x = segs[i].x; segs[i + 1].w += segs[i].w; segs.splice(i, 1); i--; }
-                        else if (i > 0) { segs[i - 1].w += segs[i].w; segs.splice(i, 1); i--; }
-                    }
-                }
-                if (segs.length) staffs.push({ y: yTop, h: yBot - yTop, measures: segs });
-            }
-            if (!staffs.length) { alert('마디선을 찾지 못했습니다. 수동으로 조정해주세요.'); return; }
-
-            app.editor.saveHist();
-            app.state.pageData[app.state.curPage] = staffs;
-            app.editor.refreshUI();
-            const mc = staffs.reduce((a, st) => a + st.measures.length, 0);
-            alert(`자동 검출 완료: 오선 ${staffs.length}행, 마디 ${mc}개.\n어긋난 부분은 마디의 +/− 와 테두리 드래그로 보정하세요.`);
         },
         refreshUI: () => {
             const ui = document.getElementById('ui-layer'); ui.innerHTML = '';
@@ -715,7 +604,14 @@ const app = {
             const r = new FileReader(); r.onload = e => { app.state.pageData = JSON.parse(e.target.result); app.editor.saveHist(); app.editor.refreshUI(); };
             r.readAsText(el.files[0]); el.value = "";
         },
-        movePage: v => { if(app.state.pdfDoc && app.state.curPage+v >= 1 && app.state.curPage+v <= app.state.pdfDoc.numPages) { app.state.curPage += v; app.editor.render(); } },
+        // 페이지 번호로 바로 이동(입력창에서 숫자 입력 시). 범위를 벗어나면 자동으로 맞춤.
+        goPage: (n) => {
+            if (!app.state.pdfDoc) return;
+            let p = parseInt(n, 10); if (isNaN(p)) p = app.state.curPage;
+            p = Math.max(1, Math.min(app.state.pdfDoc.numPages, p));
+            app.state.curPage = p; app.editor.render();
+        },
+        movePage: v => app.editor.goPage(app.state.curPage + v),
         initSidebar: () => {
             const bar = document.getElementById('sidebar-resizer');
             bar.onpointerdown = (e) => {
