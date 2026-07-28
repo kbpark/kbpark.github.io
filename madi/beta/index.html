@@ -415,6 +415,7 @@ const app = {
                 const b = await app.db.getPDF(id);
                 if(b) app.state.pdfDoc = await pdfJS.getDocument(new Uint8Array(await b.arrayBuffer())).promise;
             }
+            app.editor._pageCanvasCache = {};   // 새 편집 세션 → 페이지 렌더 캐시 초기화
             app.ui.modal('editor-overlay', true); app.editor.render(); app.editor.initSidebar();
         },
         finish: () => app.ui.modal('editor-overlay', false),
@@ -521,15 +522,22 @@ const app = {
             }
 
             // 2) 선들을 간격 급증 지점에서 끊어 '오선 세트(5줄)'로 묶는다.
+            //    med(중앙 간격) ≈ 오선 내부 줄간격이므로, 그 1.8배를 넘으면 다른 오선으로 본다.
             const gaps = []; for (let i = 1; i < lines.length; i++) gaps.push(lines[i] - lines[i - 1]);
             const med = [...gaps].sort((a, b) => a - b)[Math.floor(gaps.length / 2)] || 1;
-            const groups = []; let cur = [lines[0]];
+            const raw = []; let cur = [lines[0]];
             for (let i = 1; i < lines.length; i++) {
-                if (lines[i] - lines[i - 1] > med * 2.2) { groups.push(cur); cur = [lines[i]]; }
+                if (lines[i] - lines[i - 1] > med * 1.8) { raw.push(cur); cur = [lines[i]]; }
                 else cur.push(lines[i]);
             }
-            groups.push(cur);
-            const sets = groups.filter(g => g.length >= 4 && g.length <= 7);  // 5줄 안팎만 오선 인정
+            raw.push(cur);
+            // 5줄 오선으로 정규화: 촘촘히 붙어 8줄 이상 뭉친 덩어리는 5개씩 잘라 여러 오선으로 분리
+            // (한 줄에 오선 하나인 악보 가정). 4줄 미만 조각은 잡음으로 버린다.
+            const sets = [];
+            for (const g of raw) {
+                if (g.length >= 4 && g.length <= 7) sets.push(g);
+                else if (g.length >= 8) for (let i = 0; i + 5 <= g.length; i += 5) sets.push(g.slice(i, i + 5));
+            }
             if (!sets.length) { alert('오선 세트를 인식하지 못했습니다. 수동으로 그려주세요.'); return; }
 
             // 3) 오선 세트별로 좌우 끝과 마디선을 찾아 마디 구획 생성.
@@ -628,32 +636,50 @@ const app = {
         saveHist: () => { app.state.history = app.state.history.slice(0, app.state.hIdx+1); app.state.history.push(JSON.stringify(app.state.pageData)); app.state.hIdx++; },
         undo: () => { if(app.state.hIdx>0) { app.state.pageData = JSON.parse(app.state.history[--app.state.hIdx]); app.editor.refreshUI(); } },
         redo: () => { if(app.state.hIdx < app.state.history.length-1) { app.state.pageData = JSON.parse(app.state.history[++app.state.hIdx]); app.editor.refreshUI(); } },
-        updatePreview: () => {
+        _pageCanvasCache: {},   // 페이지별 오프스크린 렌더 캐시(스케일 1.5)
+        _previewToken: 0,       // 미리보기 중복 호출 방지 토큰
+        // 해당 페이지를 에디터와 동일한 스케일(1.5)로 오프스크린 렌더해 캐시한다(미리보기 크롭용).
+        _pageImage: async (p) => {
+            if (app.editor._pageCanvasCache[p]) return app.editor._pageCanvasCache[p];
+            if (!app.state.pdfDoc) return null;
+            const pg = await app.state.pdfDoc.getPage(p);
+            const vp = pg.getViewport({ scale: 1.5 });
+            const c = document.createElement('canvas'); c.width = vp.width; c.height = vp.height;
+            await pg.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+            app.editor._pageCanvasCache[p] = c;
+            return c;
+        },
+        // 미리보기: 현재 페이지뿐 아니라 '모든 페이지'의 마디를 1번부터 순서대로 보여준다.
+        updatePreview: async () => {
             const list = document.getElementById('preview-list');
+            const token = ++app.editor._previewToken;
             list.innerHTML = '';
-            let globalMeasureCount = 0;
             const totalPages = app.state.pdfDoc ? app.state.pdfDoc.numPages : 0;
+            let total = 0;
+            for (let p = 1; p <= totalPages; p++)
+                (app.state.pageData[p] || []).forEach(st => total += st.measures.length);
+            document.getElementById('total-m-count').innerText = `${total} 마디`;
+
+            let n = 0;
             for (let p = 1; p <= totalPages; p++) {
                 const staffs = app.state.pageData[p] || [];
-                staffs.forEach(st => {
-                    st.measures.forEach(m => {
-                        globalMeasureCount++;
-                        if (p === app.state.curPage) {
-                            const container = document.createElement('div');
-                            container.className = 'preview-item';
-                            const numBadge = document.createElement('div');
-                            numBadge.className = 'm-number';
-                            numBadge.innerText = globalMeasureCount;
-                            const can = document.createElement('canvas');
-                            can.width = m.w; can.height = st.h;
-                            can.getContext('2d').drawImage(document.getElementById('pdf-canvas'), m.x, st.y, m.w, st.h, 0, 0, m.w, st.h);
-                            container.appendChild(numBadge); container.appendChild(can);
-                            list.appendChild(container);
-                        }
-                    });
-                });
+                if (!staffs.length) continue;
+                const src = await app.editor._pageImage(p);
+                if (token !== app.editor._previewToken) return;   // 더 새 호출이 시작됨 → 중단
+                staffs.forEach(st => st.measures.forEach(m => {
+                    n++;
+                    const container = document.createElement('div');
+                    container.className = 'preview-item';
+                    const numBadge = document.createElement('div');
+                    numBadge.className = 'm-number';
+                    numBadge.innerText = n;
+                    const can = document.createElement('canvas');
+                    can.width = Math.max(1, Math.round(m.w)); can.height = Math.max(1, Math.round(st.h));
+                    if (src) can.getContext('2d').drawImage(src, m.x, st.y, m.w, st.h, 0, 0, can.width, can.height);
+                    container.appendChild(numBadge); container.appendChild(can);
+                    list.appendChild(container);
+                }));
             }
-            document.getElementById('total-m-count').innerText = `${globalMeasureCount} 마디`;
         },
         saveJSON: () => {
             const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(app.state.pageData)], {type:'application/json'}));
