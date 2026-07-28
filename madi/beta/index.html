@@ -116,13 +116,8 @@
     <div class="ed-main">
         <div class="ed-toolbar">
             <button class="ed-btn" onclick="app.editor.movePage(-1)"><i class="fa-solid fa-arrow-left"></i></button>
-            <span style="font-weight:800; display:flex; align-items:center; gap:6px; white-space:nowrap;">
-                <input id="pg-input" type="number" min="1" value="1"
-                       style="width:56px; padding:8px 4px; margin:0; text-align:center; border:2px solid #eee; border-radius:8px; font-size:15px;"
-                       onchange="app.editor.goPage(this.value)"
-                       onkeydown="if(event.key==='Enter'){app.editor.goPage(this.value); this.blur();}">
-                / <span id="pg-total">1</span>
-            </span>
+            <span id="pg-display" title="클릭해서 페이지 번호 입력" onclick="app.editor.editPage()"
+                  style="font-weight:800; min-width:70px; text-align:center; cursor:pointer; user-select:none;">1 / 1</span>
             <button class="ed-btn" onclick="app.editor.movePage(1)"><i class="fa-solid fa-arrow-right"></i></button>
             <div style="width:1px; height:30px; background:#eee; margin:0 5px;"></div>
             <button class="ed-btn" onclick="app.editor.undo()"><i class="fa-solid fa-rotate-left"></i> Undo</button>
@@ -419,6 +414,9 @@ const app = {
                 if(b) app.state.pdfDoc = await pdfJS.getDocument(new Uint8Array(await b.arrayBuffer())).promise;
             }
             app.editor._pageCanvasCache = {};   // 새 편집 세션 → 페이지 렌더 캐시 초기화
+            // Undo 히스토리 초기화: 현재(초기) 상태를 첫 스냅샷으로 넣어 첫 Undo 도 동작하게 한다.
+            app.state.history = [JSON.stringify(app.state.pageData)];
+            app.state.hIdx = 0;
             app.ui.modal('editor-overlay', true); app.editor.render(); app.editor.initSidebar();
         },
         finish: () => app.ui.modal('editor-overlay', false),
@@ -439,8 +437,7 @@ const app = {
             const pc = document.getElementById('pdf-canvas'), ic = document.getElementById('interaction-canvas');
             pc.width = ic.width = vp.width; pc.height = ic.height = vp.height;
             await pg.render({canvasContext: pc.getContext('2d'), viewport: vp}).promise;
-            document.getElementById('pg-input').value = app.state.curPage;
-            document.getElementById('pg-total').textContent = app.state.pdfDoc.numPages;
+            document.getElementById('pg-display').textContent = `${app.state.curPage} / ${app.state.pdfDoc.numPages}`;
             app.editor.initInteraction(); app.editor.refreshUI();
         },
         getFlatMeasures: () => {
@@ -538,7 +535,14 @@ const app = {
         },
         modM: (si, mi, v) => { app.editor.saveHist(); const s = app.state.pageData[app.state.curPage][si]; if(v>0) s.measures.splice(mi+1,0,{x:s.measures[mi].x+s.measures[mi].w, w:s.measures[mi].w}); else if(s.measures.length>1) s.measures.splice(mi,1); app.editor.refreshUI(); },
         modS: (si, v) => { app.editor.saveHist(); const p = app.state.pageData[app.state.curPage]; if(v>0) { let ns = JSON.parse(JSON.stringify(p[si])); ns.y += (ns.h * 1.5); p.splice(si+1, 0, ns); } else if(p.length>1) p.splice(si,1); app.editor.refreshUI(); },
-        saveHist: () => { app.state.history = app.state.history.slice(0, app.state.hIdx+1); app.state.history.push(JSON.stringify(app.state.pageData)); app.state.hIdx++; },
+        // 변경 '후'의 현재 상태를 스냅샷으로 기록(중복이면 생략). undo/redo 는 이 스냅샷들을 오간다.
+        saveHist: () => {
+            const snap = JSON.stringify(app.state.pageData);
+            if (app.state.history[app.state.hIdx] === snap) return;   // 변화 없으면 기록 안 함
+            app.state.history = app.state.history.slice(0, app.state.hIdx + 1);
+            app.state.history.push(snap);
+            app.state.hIdx = app.state.history.length - 1;
+        },
         undo: () => { if(app.state.hIdx>0) { app.state.pageData = JSON.parse(app.state.history[--app.state.hIdx]); app.editor.refreshUI(); } },
         redo: () => { if(app.state.hIdx < app.state.history.length-1) { app.state.pageData = JSON.parse(app.state.history[++app.state.hIdx]); app.editor.refreshUI(); } },
         _pageCanvasCache: {},   // 페이지별 오프스크린 렌더 캐시(스케일 1.5)
@@ -612,6 +616,16 @@ const app = {
             app.state.curPage = p; app.editor.render();
         },
         movePage: v => app.editor.goPage(app.state.curPage + v),
+        // 페이지 숫자를 클릭하면 입력창으로 바꾸고, 입력이 끝나면(goPage→render) 다시 텍스트로 되돌린다.
+        editPage: () => {
+            if (!app.state.pdfDoc) return;
+            const el = document.getElementById('pg-display');
+            el.innerHTML = '<input type="text" inputmode="numeric" value="' + app.state.curPage + '" '
+                + 'style="width:48px; padding:6px 4px; margin:0; text-align:center; font-weight:800; font-size:15px; border:2px solid var(--accent); border-radius:8px;" '
+                + 'onblur="app.editor.goPage(this.value)" '
+                + 'onkeydown="if(event.key===\'Enter\'){this.blur();}else if(event.key===\'Escape\'){this.value=\'' + app.state.curPage + '\';this.blur();}">';
+            const inp = el.querySelector('input'); inp.focus(); inp.select();
+        },
         initSidebar: () => {
             const bar = document.getElementById('sidebar-resizer');
             bar.onpointerdown = (e) => {
