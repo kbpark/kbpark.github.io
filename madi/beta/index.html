@@ -55,15 +55,15 @@
         #interaction-canvas { position: absolute; inset: 0; z-index: 5; cursor: crosshair; touch-action: none; }
         #ui-layer { position: absolute; left: 0; top: 0; z-index: 10; pointer-events: none; transform-origin: top left; }
         .measure-box { position: absolute; border: 2px solid rgba(231, 76, 60, 0.75); }
-        .measure-handle { position: absolute; top: -34px; left: -2px; height: 34px; background: var(--accent); color: white; padding: 0 12px; pointer-events: auto; border-radius: 8px 8px 0 0; display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 13px; }
+        .measure-handle { position: absolute; top: -34px; left: -2px; height: 34px; background: var(--accent); color: white; padding: 0 12px; pointer-events: auto; border-radius: 8px 8px 0 0; display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 13px; touch-action: none; }
         .staff-ctrl { position: absolute; left: -55px; top: 0; display: flex; flex-direction: column; gap: 10px; pointer-events: auto; }
-        .btn-staff { width: 38px; height: 38px; border-radius: 50%; border: none; color: white; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
-        .resizer { position: absolute; pointer-events: auto; z-index: 20; }
+        .btn-staff { width: 38px; height: 38px; border-radius: 50%; border: none; color: white; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; touch-action: none; }
+        .resizer { position: absolute; pointer-events: auto; z-index: 20; touch-action: none; }
         .resizer-v { top: 0; width: 16px; height: 100%; cursor: ew-resize; }
         .resizer-h { left: 0; height: 16px; width: 100%; cursor: ns-resize; }
         .resizer-right { right: -8px; } .resizer-left { left: -8px; }
         .resizer-top { top: -8px; } .resizer-bottom { bottom: -8px; }
-        .resizer-bar { width: 6px; cursor: col-resize; background: #eee; }
+        .resizer-bar { width: 6px; cursor: col-resize; background: #eee; touch-action: none; }
         .preview-sidebar { width: var(--sidebar-width); background: #fff; border-left: 1px solid #ddd; display: flex; flex-direction: column; }
         .preview-list { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #edf2f7; }
 
@@ -448,21 +448,37 @@ const app = {
             });
             return flat;
         },
-        // 마우스/터치 공용: 이벤트에서 clientX/clientY 를 안전하게 얻는다.
-        // touchend 때는 e.touches 가 비므로 changedTouches 를 써야 한다(태블릿 버그의 핵심).
-        pointerXY: (e) => {
-            const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
-            return { cx: t ? t.clientX : e.clientX, cy: t ? t.clientY : e.clientY };
-        },
         initInteraction: () => {
             const ic = document.getElementById('interaction-canvas'); let drawing = false, sx, sy;
             const getP = e => {
-                const r = ic.getBoundingClientRect(); const { cx, cy } = app.editor.pointerXY(e);
-                return { x: (cx - r.left) * (ic.width / r.width), y: (cy - r.top) * (ic.height / r.height) };
+                const r = ic.getBoundingClientRect();
+                return { x: (e.clientX - r.left) * (ic.width / r.width), y: (e.clientY - r.top) * (ic.height / r.height) };
             };
-            ic.onmousedown = ic.ontouchstart = e => { if(e.touches) e.preventDefault(); drawing = true; const p = getP(e); sx = p.x; sy = p.y; };
-            ic.onmousemove = ic.ontouchmove = e => { if(!drawing) return; if(e.touches) e.preventDefault(); const p = getP(e), ctx = ic.getContext('2d'); ctx.clearRect(0,0,ic.width,ic.height); ctx.strokeStyle = '#3498db'; ctx.lineWidth = 2; ctx.strokeRect(sx, sy, p.x-sx, p.y-sy); };
-            ic.onmouseup = ic.ontouchend = ic.ontouchcancel = e => { if(!drawing) return; drawing = false; const p = getP(e); ic.getContext('2d').clearRect(0,0,ic.width,ic.height); app.editor.saveHist(); app.editor.autoInfer(Math.min(sx, p.x), Math.min(sy, p.y), Math.abs(p.x-sx), Math.abs(p.y-sy)); };
+            // 포인터 이벤트로 마우스·터치·펜을 한 번에 처리(터치 노트북에서 안정적).
+            // 이동/종료는 window 에서 들어 손가락이 캔버스를 벗어나도 계속 추적한다.
+            ic.onpointerdown = e => {
+                e.preventDefault();
+                drawing = true; const p = getP(e); sx = p.x; sy = p.y;
+                const move = ev => {
+                    if (!drawing) return;
+                    const q = getP(ev), ctx = ic.getContext('2d');
+                    ctx.clearRect(0, 0, ic.width, ic.height);
+                    ctx.strokeStyle = '#3498db'; ctx.lineWidth = 2;
+                    ctx.strokeRect(sx, sy, q.x - sx, q.y - sy);
+                };
+                const end = ev => {
+                    if (!drawing) return; drawing = false;
+                    const q = getP(ev); ic.getContext('2d').clearRect(0, 0, ic.width, ic.height);
+                    window.removeEventListener('pointermove', move);
+                    window.removeEventListener('pointerup', end);
+                    window.removeEventListener('pointercancel', end);
+                    app.editor.saveHist();
+                    app.editor.autoInfer(Math.min(sx, q.x), Math.min(sy, q.y), Math.abs(q.x - sx), Math.abs(q.y - sy));
+                };
+                window.addEventListener('pointermove', move);
+                window.addEventListener('pointerup', end);
+                window.addEventListener('pointercancel', end);
+            };
         },
         autoInfer: (bx, by, bw, bh) => {
             if(bw < 30) return; let staffs = [], cy = by;
@@ -604,18 +620,16 @@ const app = {
         },
         createResizer: (si, mi, side) => {
             const el = document.createElement('div'); el.className = `resizer resizer-${(side==='top'||side==='bottom')?'h':'v'} resizer-${side}`;
-            el.onmousedown = el.ontouchstart = e => {
-                e.preventDefault(); app.editor.saveHist();
+            el.onpointerdown = e => {
+                e.preventDefault(); e.stopPropagation(); app.editor.saveHist();
                 const st = app.state.pageData[app.state.curPage][si], m = st.measures[mi];
-                const { cx: sX, cy: sY } = app.editor.pointerXY(e);
+                const sX = e.clientX, sY = e.clientY;
                 const iW = m.w, iH = st.h, iY = st.y, iX = m.x;
                 // 화면에 맞춰 캔버스가 줄어든 경우, 손가락 이동(표시 px)을 내부 px 로 환산.
                 const pc = document.getElementById('pdf-canvas');
                 const k = pc.getBoundingClientRect().width ? pc.width / pc.getBoundingClientRect().width : 1;
                 const move = ev => {
-                    if(ev.touches) ev.preventDefault();
-                    const { cx: cX, cy: cY } = app.editor.pointerXY(ev);
-                    const dx = (cX - sX) * k, dy = (cY - sY) * k;
+                    const dx = (ev.clientX - sX) * k, dy = (ev.clientY - sY) * k;
                     if(side==='right') { m.w = Math.max(10, iW + dx); st.measures.slice(mi+1).forEach((nm, ni) => nm.x = st.measures[mi+ni].x+st.measures[mi+ni].w); }
                     else if(side==='left') { m.x = iX + dx; m.w = Math.max(10, iW - dx); }
                     else if(side==='bottom') st.h = Math.max(10, iH + dy);
@@ -623,11 +637,13 @@ const app = {
                     app.editor.refreshUI();
                 };
                 const end = () => {
-                    window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', end);
-                    window.removeEventListener('touchmove', move); window.removeEventListener('touchend', end);
+                    window.removeEventListener('pointermove', move);
+                    window.removeEventListener('pointerup', end);
+                    window.removeEventListener('pointercancel', end);
                 };
-                window.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
-                window.addEventListener('touchmove', move, { passive: false }); window.addEventListener('touchend', end);
+                window.addEventListener('pointermove', move);
+                window.addEventListener('pointerup', end);
+                window.addEventListener('pointercancel', end);
             };
             return el;
         },
@@ -639,15 +655,25 @@ const app = {
         _pageCanvasCache: {},   // 페이지별 오프스크린 렌더 캐시(스케일 1.5)
         _previewToken: 0,       // 미리보기 중복 호출 방지 토큰
         // 해당 페이지를 에디터와 동일한 스케일(1.5)로 오프스크린 렌더해 캐시한다(미리보기 크롭용).
-        _pageImage: async (p) => {
-            if (app.editor._pageCanvasCache[p]) return app.editor._pageCanvasCache[p];
-            if (!app.state.pdfDoc) return null;
-            const pg = await app.state.pdfDoc.getPage(p);
-            const vp = pg.getViewport({ scale: 1.5 });
-            const c = document.createElement('canvas'); c.width = vp.width; c.height = vp.height;
-            await pg.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
-            app.editor._pageCanvasCache[p] = c;
-            return c;
+        // 캐시에 'Promise'를 저장해 동시 호출이 같은 렌더를 공유하도록 한다
+        // (같은 페이지를 pdf.js 로 동시에 두 번 렌더하면 오류 → 미리보기가 중간에 죽던 문제 방지).
+        _pageImage: (p) => {
+            if (!app.state.pdfDoc) return Promise.resolve(null);
+            if (!app.editor._pageCanvasCache[p]) {
+                app.editor._pageCanvasCache[p] = (async () => {
+                    try {
+                        const pg = await app.state.pdfDoc.getPage(p);
+                        const vp = pg.getViewport({ scale: 1.5 });
+                        const c = document.createElement('canvas'); c.width = vp.width; c.height = vp.height;
+                        await pg.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+                        return c;
+                    } catch (err) {
+                        delete app.editor._pageCanvasCache[p];   // 실패 시 캐시 무효화(다음에 재시도)
+                        return null;
+                    }
+                })();
+            }
+            return app.editor._pageCanvasCache[p];
         },
         // 미리보기: 현재 페이지뿐 아니라 '모든 페이지'의 마디를 1번부터 순서대로 보여준다.
         updatePreview: async () => {
@@ -692,20 +718,20 @@ const app = {
         movePage: v => { if(app.state.pdfDoc && app.state.curPage+v >= 1 && app.state.curPage+v <= app.state.pdfDoc.numPages) { app.state.curPage += v; app.editor.render(); } },
         initSidebar: () => {
             const bar = document.getElementById('sidebar-resizer');
-            bar.onmousedown = bar.ontouchstart = (e) => {
-                if(e.touches) e.preventDefault();
+            bar.onpointerdown = (e) => {
+                e.preventDefault();
                 const move = ev => {
-                    if(ev.touches) ev.preventDefault();
-                    const { cx } = app.editor.pointerXY(ev);
-                    let nw = window.innerWidth - cx;
+                    let nw = window.innerWidth - ev.clientX;
                     if(nw > 150 && nw < 500) document.documentElement.style.setProperty('--sidebar-width', nw + 'px');
                 };
                 const end = () => {
-                    window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', end);
-                    window.removeEventListener('touchmove', move); window.removeEventListener('touchend', end);
+                    window.removeEventListener('pointermove', move);
+                    window.removeEventListener('pointerup', end);
+                    window.removeEventListener('pointercancel', end);
                 };
-                window.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
-                window.addEventListener('touchmove', move, { passive: false }); window.addEventListener('touchend', end);
+                window.addEventListener('pointermove', move);
+                window.addEventListener('pointerup', end);
+                window.addEventListener('pointercancel', end);
             };
         }
     },
