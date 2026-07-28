@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>산적의 마디 정복 - 하이브리드 모드</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <style>
+        :root { --accent: #e74c3c; --bg: #f0f2f5; --dark: #2c3e50; --blue: #3498db; --green: #2ecc71; --orange: #f39c12; --sidebar-width: 320px; }
+        body { margin: 0; font-family: 'Pretendard', sans-serif; background: var(--bg); overflow-x: hidden; touch-action: manipulation; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
+        .logo { font-weight: 800; font-size: 1.4rem; color: var(--dark); display: flex; align-items: center; gap: 10px; }
+        .logo i { color: var(--accent); }
+        .main-dashboard { padding: 20px; max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+        section { background: white; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; position: relative; }
+        .sec-header { padding: 20px 25px; font-weight: 800; cursor: pointer; display: flex; justify-content: space-between; border-bottom: 1px solid #eee; background: #fff; }
+        .sec-content { padding: 25px; display: none; }
+        .sec-content.open { display: block; }
+        .inline-add-btn { position: absolute; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--accent); color: white; border: none; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 4px 15px rgba(231,76,60,0.4); font-size: 1.8rem; }
+        section:has(.sec-content.open) .inline-add-btn { display: flex; }
+        .song-card { background: #f8f9fa; padding: 18px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; border: 2px solid transparent; display: flex; justify-content: space-between; align-items: center; }
+        .song-card.active { border-color: var(--accent); background: white; }
+        
+        /* 연습 영역 UI */
+        .m-render-box { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; background: #fff; padding: 25px; border-radius: 15px; border: 1px solid #eee; margin-bottom: 25px; }
+        .recorder-box { background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 25px; display: flex; flex-direction: column; align-items: center; gap: 15px; border: 1px dashed #ddd; }
+        .eval-group { display: flex; gap: 12px; margin-bottom: 25px; }
+        .btn-eval { flex: 1; padding: 18px; border: none; border-radius: 12px; color: white; font-weight: 800; cursor: pointer; font-size: 1.1rem; }
+        .queue-preview { background: #f1f3f5; padding: 15px; border-radius: 10px; font-size: 0.9rem; color: #555; text-align: left; line-height: 1.6; }
+        
+        /* 탭 시스템 */
+        .tab-container { margin-top: 40px; border-top: 2px solid #eee; padding-top: 25px; }
+        .tab-menu { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
+        .tab-btn { padding: 10px 20px; border-radius: 25px; border: 1px solid #ddd; background: #fff; white-space: nowrap; cursor: pointer; font-weight: 700; font-size: 14px; }
+        .tab-btn.active { background: var(--dark); color: white; border-color: var(--dark); }
+        .tab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; }
+        .status-cell { padding: 12px 5px; border-radius: 10px; font-size: 12px; text-align: center; border: 1px solid #eee; font-weight: 800; }
+        .status-상 { background: var(--green); color: white; border-color: var(--green); }
+        .status-중 { background: var(--orange); color: white; border-color: var(--orange); }
+        .status-하 { background: var(--accent); color: white; border-color: var(--accent); }
+        .status-미연습 { background: #f8f9fa; color: #bbb; }
+        .status-가능 { background: #eaf1ff; color: var(--blue); border: 1px dashed var(--blue); }
+
+        /* 에디터 오버레이 */
+        #editor-overlay { position: fixed; inset: 0; background: #fff; z-index: 9999; display: none; }
+        #editor-overlay.active { display: flex; }
+        .ed-main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .ed-toolbar { height: 75px; background: white; border-bottom: 1px solid #ddd; display: flex; align-items: center; padding: 0 20px; gap: 12px; overflow-x: auto; }
+        .ed-btn { height: 46px; padding: 0 18px; border-radius: 10px; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .ed-btn.accent { background: var(--accent); color: white; border: none; }
+        .ed-canvas-area { flex: 1; overflow: auto; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #cbd5e0; }
+        .canvas-container { position: relative; background: white; box-shadow: 0 10px 60px rgba(0,0,0,0.4); }
+        #pdf-canvas { display: block; max-width: 100%; height: auto !important; }
+        #interaction-canvas { position: absolute; inset: 0; z-index: 5; cursor: crosshair; touch-action: none; }
+        #ui-layer { position: absolute; left: 0; top: 0; z-index: 10; pointer-events: none; transform-origin: top left; }
+        .measure-box { position: absolute; border: 2px solid rgba(231, 76, 60, 0.75); }
+        .measure-handle { position: absolute; top: -34px; left: -2px; height: 34px; background: var(--accent); color: white; padding: 0 12px; pointer-events: auto; border-radius: 8px 8px 0 0; display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 13px; }
+        .staff-ctrl { position: absolute; left: -55px; top: 0; display: flex; flex-direction: column; gap: 10px; pointer-events: auto; }
+        .btn-staff { width: 38px; height: 38px; border-radius: 50%; border: none; color: white; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
+        .resizer { position: absolute; pointer-events: auto; z-index: 20; }
+        .resizer-v { top: 0; width: 16px; height: 100%; cursor: ew-resize; }
+        .resizer-h { left: 0; height: 16px; width: 100%; cursor: ns-resize; }
+        .resizer-right { right: -8px; } .resizer-left { left: -8px; }
+        .resizer-top { top: -8px; } .resizer-bottom { bottom: -8px; }
+        .resizer-bar { width: 6px; cursor: col-resize; background: #eee; }
+        .preview-sidebar { width: var(--sidebar-width); background: #fff; border-left: 1px solid #ddd; display: flex; flex-direction: column; }
+        .preview-list { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #edf2f7; }
+
+        /* 마디 미리보기 아이템 */
+        .preview-item { position: relative; margin-bottom: 5px; }
+        .preview-item canvas { display: block; width: 100%; border: 1px solid #ddd; border-radius: 4px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .m-number { 
+            position: absolute; top: 5px; left: 5px; 
+            background: rgba(231, 76, 60, 0.9); color: white; 
+            padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 800; 
+            z-index: 2; pointer-events: none;
+        }
+
+        /* 모달 스타일 */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: white; padding: 35px; border-radius: 24px; width: 90%; max-width: 520px; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 14px; border: 2px solid #eee; border-radius: 12px; margin: 8px 0 15px; box-sizing: border-box; font-size: 16px; }
+
+        /* 진행바 스타일 */
+        .progress-container { width: 100%; background: #eee; height: 8px; border-radius: 4px; margin-top: 10px; overflow: hidden; }
+        .progress-bar { background: var(--green); height: 100%; transition: width 0.3s ease; }
+        .song-info { flex: 1; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo"><i class="fa-solid fa-music"></i> <span>산적의 마디 정복</span></div>
+    <div style="display:flex; gap:20px; font-size:1.5rem; color:#636e72; cursor:pointer;">
+        <i class="fa-solid fa-circle-question" onclick="app.ui.modal('info-modal', true)"></i>
+        <i class="fa-solid fa-gear" onclick="app.ui.modal('settings-modal', true)"></i>
+    </div>
+</header>
+
+<div class="main-dashboard">
+    <section id="sec-management">
+        <div class="sec-header" onclick="app.ui.toggle('management')"><span>악보 및 곡 관리</span><i class="fa-solid fa-chevron-up"></i></div>
+        <div class="sec-content open" id="song-list"></div>
+        <button class="inline-add-btn" onclick="app.logic.openAddModal()"><i class="fa-solid fa-plus"></i></button>
+    </section>
+    
+    <section id="sec-practice">
+        <div class="sec-header" onclick="app.ui.toggle('practice')"><span>연습 모드</span><i class="fa-solid fa-chevron-down"></i></div>
+        <div class="sec-content" id="practice-area">곡을 선택해주세요.</div>
+    </section>
+</div>
+
+<div id="editor-overlay">
+    <div class="ed-main">
+        <div class="ed-toolbar">
+            <button class="ed-btn" onclick="app.editor.movePage(-1)"><i class="fa-solid fa-arrow-left"></i></button>
+            <span id="pg-info" style="font-weight:800; min-width:70px; text-align:center;">1 / 1</span>
+            <button class="ed-btn" onclick="app.editor.movePage(1)"><i class="fa-solid fa-arrow-right"></i></button>
+            <div style="width:1px; height:30px; background:#eee; margin:0 5px;"></div>
+            <button class="ed-btn" onclick="app.editor.undo()"><i class="fa-solid fa-rotate-left"></i> Undo</button>
+            <button class="ed-btn" onclick="app.editor.redo()"><i class="fa-solid fa-rotate-right"></i> Redo</button>
+            <div style="width:1px; height:30px; background:#eee; margin:0 5px;"></div>
+            <button class="ed-btn accent" style="background:var(--blue)" onclick="app.editor.autoDetect()"><i class="fa-solid fa-wand-magic-sparkles"></i> 자동 마디 검출</button>
+            <div style="width:1px; height:30px; background:#eee; margin:0 5px;"></div>
+            <button class="ed-btn" onclick="document.getElementById('json-input').click()"><i class="fa-solid fa-file-import"></i> Load</button>
+            <button class="ed-btn" onclick="app.editor.saveJSON()"><i class="fa-solid fa-file-export"></i> Save</button>
+            <input type="file" id="json-input" style="display:none" onchange="app.editor.loadJSON(this)">
+            <div style="flex:1"></div>
+            <button class="ed-btn accent" onclick="app.editor.finish()"><i class="fa-solid fa-circle-check"></i> 편집 완료</button>
+        </div>
+        <div class="ed-canvas-area">
+            <div class="canvas-container"><canvas id="pdf-canvas"></canvas><canvas id="interaction-canvas"></canvas><div id="ui-layer"></div></div>
+        </div>
+    </div>
+    <div class="resizer-bar" id="sidebar-resizer"></div>
+    <div class="preview-sidebar">
+        <div style="padding:18px; border-bottom:1px solid #eee; font-weight:800; display:flex; justify-content:space-between; background:#fff;">
+            <span>미리보기</span><span id="total-m-count" style="color:var(--accent);">0 마디</span>
+        </div>
+        <div class="preview-list" id="preview-list"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="settings-modal">
+    <div class="modal-box">
+        <h3 style="margin-top:0;"><i class="fa-solid fa-gear"></i> 시스템 관리</h3>
+        <button class="ed-btn" style="width:100%; margin-bottom:12px; justify-content:center;" onclick="app.data.backup()"><i class="fa-solid fa-download"></i> 전체 데이터 백업</button>
+        <button class="ed-btn" style="width:100%; margin-bottom:12px; justify-content:center;" onclick="document.getElementById('restore-input').click()"><i class="fa-solid fa-upload"></i> 데이터 복구</button>
+        <input type="file" id="restore-input" style="display:none" onchange="app.data.restore(this)">
+        <button class="ed-btn" style="width:100%; color:var(--accent); justify-content:center;" onclick="app.data.reset()"><i class="fa-solid fa-trash"></i> 전체 초기화</button>
+        <button class="ed-btn" style="width:100%; margin-top:25px; justify-content:center; background:#eee;" onclick="app.ui.modal('settings-modal', false)">닫기</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="add-song-modal">
+    <div class="modal-box">
+        <h3>곡 정보 설정</h3>
+        <input type="hidden" id="edit-song-id">
+        <label>곡 제목</label><input type="text" id="in-title">
+        <label>PDF 악보</label><input type="file" id="pdf-upload" accept="application/pdf" onchange="app.pdf.handle(this)">
+        <button id="open-ed-btn" class="ed-btn accent" style="display:none; width:100%; margin:15px 0; justify-content:center;" onclick="app.editor.open()">마디 에디터 열기</button>
+        <div style="display:flex; gap:15px;">
+            <div style="flex:1"><label>최소 마디수</label><input type="number" id="in-min" value="1"></div>
+            <div style="flex:1"><label>최대 마디수</label><input type="number" id="in-max" value="4"></div>
+        </div>
+        <div style="display:flex; gap:12px; margin-top:25px;">
+            <button class="ed-btn accent" style="flex:1; justify-content:center; background:var(--green)" onclick="app.logic.saveSong()">저장</button>
+            <button class="ed-btn" style="flex:1; justify-content:center;" onclick="app.ui.modal('add-song-modal', false)">취소</button>
+        </div>
+        <div style="display:flex; gap:12px; margin-top:10px;">
+            <button class="ed-btn" style="flex:1; color:var(--orange);" onclick="app.logic.resetProgress()">기록 리셋</button>
+            <button class="ed-btn" style="flex:1; color:var(--accent);" onclick="app.logic.deleteSong()">곡 삭제</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="info-modal">
+    <div class="modal-box" style="max-width: 600px; line-height: 1.6;">
+        <h3 style="color: var(--accent); border-bottom: 2px solid #eee; padding-bottom: 10px;">
+            <i class="fa-solid fa-lightbulb"></i> 처음 오셨나요? 사용법 가이드
+        </h3>
+        
+        <div style="max-height: 400px; overflow-y: auto; text-align: left; padding-right: 10px;">
+            <p><strong>1. 곡 등록 및 악보 스캔</strong><br>
+            메인 화면의 <i class="fa-solid fa-plus"></i> 버튼을 눌러 곡 제목을 입력하고 PDF 파일을 업로드하세요.</p>
+
+            <p><strong>2. 마디 에디터 설정 (중요!)</strong><br>
+            [마디 에디터 열기] 후 상단의 <strong>[자동 마디 검출]</strong> 버튼을 누르면, 악보의 오선과
+            마디선을 분석해 마디를 자동으로 나눕니다(한 줄에 오선 하나인 멜로디/성악 악보에 최적).
+            <br>수동으로 하려면 악보 위를 <strong>마우스나 손가락으로 드래그</strong>해 사각형을 그리면 그 크기로 격자가 생성됩니다.
+            <br><small>* 어긋난 부분은 마디의 <i class="fa-solid fa-plus"></i>/<i class="fa-solid fa-minus"></i> 버튼과 테두리 드래그로 보정하세요.</small></p>
+
+            <p><strong>3. 연습 모드 시작</strong><br>
+            등록된 곡을 클릭하면 연습이 시작됩니다. '산적의 마디 정복'은 <strong>지능형 알고리즘</strong>을 사용합니다.
+            <ul>
+                <li>먼저 개별 마디(1마디씩)를 '상'으로 정복하세요.</li>
+                <li>연속된 마디들이 모두 익숙해지면, 앱이 자동으로 <strong>2마디, 3마디씩 묶어서</strong> 더 길게 연습하도록 대기열을 만들어줍니다.</li>
+            </ul></p>
+
+            <p><strong>4. 평가 및 정복</strong><br>
+            연습 후 <strong>[상, 중, 하]</strong> 버튼으로 본인의 숙련도를 평가하세요. '상'을 받은 마디는 다음 단계(더 긴 연결 연습)로 넘어가는 열쇠가 됩니다.</p>
+        </div>
+
+        <button class="ed-btn accent" style="width:100%; justify-content:center; margin-top: 20px;" onclick="app.ui.modal('info-modal', false)">
+            이제 연습하러 가기!
+        </button>
+    </div>
+</div>
+
+<script>
+const pdfJS = window['pdfjs-dist/build/pdf'];
+pdfJS.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+const app = {
+    state: { pdfDoc: null, songs: [], pageData: {}, history: [], hIdx: -1, curPage: 1, curSong: null, db: null, tempBlob: null },
+    
+    practice: {
+        queue: [], curBatch: [], lastBatch: [], evals: {}, mediaRecorder: null, audioChunks: [], audioUrl: null, displayTab: 1,
+        init: async (id) => {
+            // 1. 상태 초기화
+            app.state.curSong = app.state.songs.find(s => s.id === id);
+            if(!app.state.curSong) return;
+
+            app.state.pageData = JSON.parse(JSON.stringify(app.state.curSong.pageData || {}));
+            app.practice.evals = app.state.curSong.results || {};
+            app.state.curPage = 1;
+
+            // 2. PDF 로드
+            const pdfBlob = await app.db.getPDF(id);
+            if(pdfBlob) {
+                const arrayBuffer = await pdfBlob.arrayBuffer();
+                app.state.pdfDoc = await pdfJS.getDocument(new Uint8Array(arrayBuffer)).promise;
+            } else {
+                app.state.pdfDoc = null;
+            }
+
+            // 3. UI 업데이트 및 대기열 생성 (곡 전환 시 큐/직전기록 초기화)
+            app.practice.queue = [];
+            app.practice.lastBatch = [];
+            app.practice.refreshQueue();
+            app.practice.next();
+            app.logic.renderSongs(); // 활성 상태 표시용
+            if(!document.querySelector('#sec-practice .sec-content').classList.contains('open')) app.ui.toggle('practice');
+        },
+        // Fisher–Yates 셔플(제자리). sort(()=>Math.random()-0.5) 는 편향되므로 사용하지 않는다.
+        _shuffle: (arr) => {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        },
+        // 편입 규칙(개별 마디·엄격): 묶음의 개별 마디가 모두 평가돼 있고('미연습' 없음)
+        // '하'가 하나도 없으며, 최소 하나가 '상'이면 대기열에 들어올 수 있다.
+        isEligible: (batch, min) => {
+            const evals = app.practice.evals;
+            if (evals[batch.join(',')] === '상') return false;   // 이미 정복
+            if (batch.length <= min) return true;                // 원자 단위(기본 min=1: 단일 마디)
+            let hasMax = false;
+            for (const m of batch) {
+                const r = evals[String(m)];
+                if (r !== '상' && r !== '중') return false;       // 미연습 또는 '하' → 차단
+                if (r === '상') hasMax = true;
+            }
+            return hasMax;
+        },
+        // 현재 편입 가능한 모든 묶음 목록을 만든다.
+        buildEligible: () => {
+            const allM = app.editor.getFlatMeasures();
+            const min = parseInt(app.state.curSong.min) || 1;
+            const max = parseInt(app.state.curSong.max) || 4;
+            const list = [];
+            for (let s = min; s <= max; s++)
+                for (let i = 0; i <= allM.length - s; i++) {
+                    const batch = []; for (let j = 0; j < s; j++) batch.push(i + j + 1);
+                    if (app.practice.isEligible(batch, min)) list.push(batch);
+                }
+            // 최소 보장: 아무것도 없으면 최소 단위(min) 미정복 마디라도 제공
+            if (list.length === 0)
+                for (let i = 0; i <= allM.length - min; i++) {
+                    const fb = []; for (let j = 0; j < min; j++) fb.push(i + j + 1);
+                    if (app.practice.evals[fb.join(',')] !== '상') list.push(fb);
+                }
+            return list;
+        },
+        // 큐를 '교체'가 아니라 '병합'으로 갱신 → 매 평가마다 통째로 뒤섞이지 않아 안정적이고,
+        // 새로 열린 묶음만 셔플해 뒤에 덧붙인다.
+        refreshQueue: () => {
+            const list = app.practice.buildEligible();
+            const eligibleKeys = new Set(list.map(b => b.join(',')));
+            const kept = app.practice.queue.filter(b => eligibleKeys.has(b.join(',')));
+            const keptKeys = new Set(kept.map(b => b.join(',')));
+            const fresh = app.practice._shuffle(list.filter(b => !keptKeys.has(b.join(','))));
+            app.practice.queue = kept.concat(fresh);
+        },
+        next: () => {
+            if(app.practice.queue.length === 0) {
+                app.practice.refreshQueue();
+                if(app.practice.queue.length === 0) {
+                    document.getElementById('practice-area').innerHTML = "<h3>모든 마디를 정복했습니다!</h3>";
+                    return;
+                }
+            }
+            // 연속 중복 회피: 직전 배치와 마디가 겹치면, 겹치지 않는 첫 항목을 우선 선택
+            // (겹치는 항목은 큐 앞쪽에 남아 나중에 자연스럽게 분산된다).
+            const q = app.practice.queue, last = app.practice.lastBatch || [];
+            let pick = 0;
+            if (last.length && q.length > 1) {
+                const idx = q.findIndex(b => !b.some(m => last.includes(m)));
+                if (idx > 0) pick = idx;
+            }
+            app.practice.curBatch = q.splice(pick, 1)[0] || [];
+            app.practice.render();
+        },
+        render: () => {
+            const area = document.getElementById('practice-area');
+            if(!app.state.curSong) return;
+            app.practice.lastBatch = app.practice.curBatch;   // 다음 회차의 연속 중복 회피에 사용
+            const batchKey = app.practice.curBatch.join('-');
+            area.innerHTML = `
+                <h2 style="color:var(--dark)">${batchKey} 마디 연습 <small>(${app.practice.curBatch.length}연속)</small></h2>
+                <div class="m-render-box" id="m-render"></div>
+                <div class="recorder-box">
+                    <div id="rec-status" style="font-weight:800; color:var(--accent)">준비됨</div>
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <button class="ed-btn" onclick="app.practice.toggleRec()"><i class="fa-solid fa-microphone"></i> 녹음</button>
+                        <audio id="audio-player" controls style="display:none; height:40px;"></audio>
+                    </div>
+                </div>
+                <div class="eval-group">
+                    <button class="btn-eval" style="background:var(--green)" onclick="app.practice.evaluate('상')">상 (정복)</button>
+                    <button class="btn-eval" style="background:var(--orange)" onclick="app.practice.evaluate('중')">중 (보통)</button>
+                    <button class="btn-eval" style="background:var(--accent)" onclick="app.practice.evaluate('하')">하 (미흡)</button>
+                </div>
+                <div class="queue-preview">
+                    <strong>다음에 나올 연습들 (랜덤):</strong><br>
+                    ${app.practice.queue.slice(0, 5).map(b => `[${b.join('-')}]`).join(' , ')} ...
+                </div>
+                <div class="tab-container" id="stat-tabs"></div>
+            `;
+            app.practice.drawMeasures();
+            app.practice.renderTabs();
+        },
+        drawMeasures: async () => {
+            const flat = app.editor.getFlatMeasures();
+            const container = document.getElementById('m-render');
+            if(!app.state.pdfDoc) return;
+            for(let idx of app.practice.curBatch) {
+                const d = flat[idx-1]; if(!d) continue;
+                const can = document.createElement('canvas');
+                can.width = d.w; can.height = d.h; can.style.height = "130px";
+                const pg = await app.state.pdfDoc.getPage(parseInt(d.pg));
+                const vp = pg.getViewport({scale: 2.0});
+                const tCan = document.createElement('canvas'); tCan.width = vp.width; tCan.height = vp.height;
+                await pg.render({canvasContext: tCan.getContext('2d'), viewport: vp}).promise;
+                can.getContext('2d').drawImage(tCan, d.x*1.33, d.y*1.33, d.w*1.33, d.h*1.33, 0, 0, d.w, d.h);
+                container.appendChild(can);
+            }
+        },
+        evaluate: (res) => {
+            const key = app.practice.curBatch.join(',');
+            app.practice.evals[key] = res;
+            const sIdx = app.state.songs.findIndex(s => s.id === app.state.curSong.id);
+            app.state.songs[sIdx].results = app.practice.evals;
+            app.data.save();
+            app.practice.refreshQueue();
+            app.practice.next();
+        },
+        toggleRec: async () => {
+            if(app.practice.mediaRecorder?.state === "recording") {
+                app.practice.mediaRecorder.stop();
+                document.getElementById('rec-status').innerText = "저장됨";
+            } else {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                app.practice.mediaRecorder = new MediaRecorder(stream);
+                app.practice.audioChunks = [];
+                app.practice.mediaRecorder.ondataavailable = e => app.practice.audioChunks.push(e.data);
+                app.practice.mediaRecorder.onstop = () => {
+                    const blob = new Blob(app.practice.audioChunks, { type: 'audio/mp4' });
+                    const player = document.getElementById('audio-player');
+                    player.src = URL.createObjectURL(blob); player.style.display = 'block';
+                };
+                app.practice.mediaRecorder.start();
+                document.getElementById('rec-status').innerText = "녹음 중...";
+            }
+        },
+        renderTabs: () => {
+            const container = document.getElementById('stat-tabs');
+            const curStep = app.practice.displayTab || 1;
+            let html = `<div class="tab-menu">`;
+            for(let i=app.state.curSong.min; i<=app.state.curSong.max; i++) 
+                html += `<button class="tab-btn ${curStep === i ? 'active' : ''}" onclick="app.practice.setTab(${i})">${i}마디</button>`;
+            html += `</div><div class="tab-grid">`;
+            const allM = app.editor.getFlatMeasures();
+            const min = parseInt(app.state.curSong.min) || 1;
+            for(let i=0; i <= allM.length - curStep; i++) {
+                const batch = []; for(let j=0; j<curStep; j++) batch.push(i+j+1);
+                const k = batch.join(',');
+                let res = app.practice.evals[k] || '미연습';
+                // 아직 미연습이지만 편입 조건을 만족하는 묶음은 '가능'으로 구분 표시
+                if (res === '미연습' && curStep > min && app.practice.isEligible(batch, min)) res = '가능';
+                html += `<div class="status-cell status-${res}">${batch.join('-')}<br>${res}</div>`;
+            }
+            container.innerHTML = html + `</div>`;
+        },
+        setTab: (t) => { app.practice.displayTab = t; app.practice.renderTabs(); }
+    },
+
+    editor: {
+        open: async () => {
+            const id = document.getElementById('edit-song-id').value;
+            if(id && !app.state.pdfDoc) {
+                const b = await app.db.getPDF(id);
+                if(b) app.state.pdfDoc = await pdfJS.getDocument(new Uint8Array(await b.arrayBuffer())).promise;
+            }
+            app.ui.modal('editor-overlay', true); app.editor.render(); app.editor.initSidebar();
+        },
+        finish: () => app.ui.modal('editor-overlay', false),
+        // 화면 폭에 맞춰 축소된 캔버스 위로 마디 박스 오버레이(#ui-layer)를 정확히 겹친다.
+        // 저장 좌표는 내부 픽셀(스케일 1.5) 그대로 두고, 표시만 displayed/internal 배율로 축소.
+        applyOverlayScale: () => {
+            const pc = document.getElementById('pdf-canvas'), ui = document.getElementById('ui-layer');
+            if(!pc || !ui || !pc.width) return;
+            const shown = pc.getBoundingClientRect().width;
+            const scale = shown ? shown / pc.width : 1;
+            ui.style.width = pc.width + 'px'; ui.style.height = pc.height + 'px';
+            ui.style.transform = `scale(${scale})`;
+        },
+        render: async () => {
+            if(!app.state.pdfDoc) return;
+            const pg = await app.state.pdfDoc.getPage(app.state.curPage);
+            const vp = pg.getViewport({scale: 1.5});
+            const pc = document.getElementById('pdf-canvas'), ic = document.getElementById('interaction-canvas');
+            pc.width = ic.width = vp.width; pc.height = ic.height = vp.height;
+            await pg.render({canvasContext: pc.getContext('2d'), viewport: vp}).promise;
+            document.getElementById('pg-info').innerText = `${app.state.curPage} / ${app.state.pdfDoc.numPages}`;
+            app.editor.initInteraction(); app.editor.refreshUI();
+        },
+        getFlatMeasures: () => {
+            const flat = [];
+            Object.keys(app.state.pageData).sort((a,b)=>a-b).forEach(p => {
+                (app.state.pageData[p] || []).forEach(st => {
+                    st.measures.forEach(m => flat.push({...m, y: st.y, h: st.h, pg: p}));
+                });
+            });
+            return flat;
+        },
+        // 마우스/터치 공용: 이벤트에서 clientX/clientY 를 안전하게 얻는다.
+        // touchend 때는 e.touches 가 비므로 changedTouches 를 써야 한다(태블릿 버그의 핵심).
+        pointerXY: (e) => {
+            const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
+            return { cx: t ? t.clientX : e.clientX, cy: t ? t.clientY : e.clientY };
+        },
+        initInteraction: () => {
+            const ic = document.getElementById('interaction-canvas'); let drawing = false, sx, sy;
+            const getP = e => {
+                const r = ic.getBoundingClientRect(); const { cx, cy } = app.editor.pointerXY(e);
+                return { x: (cx - r.left) * (ic.width / r.width), y: (cy - r.top) * (ic.height / r.height) };
+            };
+            ic.onmousedown = ic.ontouchstart = e => { if(e.touches) e.preventDefault(); drawing = true; const p = getP(e); sx = p.x; sy = p.y; };
+            ic.onmousemove = ic.ontouchmove = e => { if(!drawing) return; if(e.touches) e.preventDefault(); const p = getP(e), ctx = ic.getContext('2d'); ctx.clearRect(0,0,ic.width,ic.height); ctx.strokeStyle = '#3498db'; ctx.lineWidth = 2; ctx.strokeRect(sx, sy, p.x-sx, p.y-sy); };
+            ic.onmouseup = ic.ontouchend = ic.ontouchcancel = e => { if(!drawing) return; drawing = false; const p = getP(e); ic.getContext('2d').clearRect(0,0,ic.width,ic.height); app.editor.saveHist(); app.editor.autoInfer(Math.min(sx, p.x), Math.min(sy, p.y), Math.abs(p.x-sx), Math.abs(p.y-sy)); };
+        },
+        autoInfer: (bx, by, bw, bh) => {
+            if(bw < 30) return; let staffs = [], cy = by;
+            while (cy + bh <= document.getElementById('pdf-canvas').height) {
+                let ms = [], cx = bx; while (cx + bw <= document.getElementById('pdf-canvas').width) { ms.push({ x: cx, w: bw }); cx += bw; }
+                staffs.push({ y: cy, h: bh, measures: ms }); cy += (bh * 1.6);
+            }
+            app.state.pageData[app.state.curPage] = staffs; app.editor.refreshUI();
+        },
+        // === 자동 마디 검출 (한 줄=오선 하나 악보 대상) ============================
+        // 렌더된 캔버스 픽셀을 분석: 가로 투영으로 오선(5줄)을, 세로 투영으로 마디선을 찾는다.
+        // 좌표는 캔버스 내부 픽셀(스케일 1.5)로 저장 → 기존 구조/연습 화면과 그대로 호환.
+        autoDetect: () => {
+            const pc = document.getElementById('pdf-canvas');
+            if(!pc || !pc.width) { alert('먼저 PDF를 불러오세요.'); return; }
+            if((app.state.pageData[app.state.curPage] || []).length &&
+               !confirm('이 페이지의 기존 마디를 지우고 자동으로 다시 검출할까요?')) return;
+
+            const W = pc.width, H = pc.height;
+            const img = pc.getContext('2d').getImageData(0, 0, W, H).data;
+            const INK = 140;                                   // 휘도 이보다 어두우면 잉크로 간주
+            const dark = (x, y) => {
+                const i = (y * W + x) * 4;
+                if (img[i + 3] < 30) return false;             // 투명 배경
+                return (img[i] * 0.299 + img[i + 1] * 0.587 + img[i + 2] * 0.114) < INK;
+            };
+
+            // 1) 가로 투영: 각 행에서 '가장 긴 연속 잉크 구간'이 페이지 폭의 일정 비율 이상이면 오선.
+            const rowRun = new Array(H).fill(0);
+            for (let y = 0; y < H; y++) {
+                let run = 0, best = 0;
+                for (let x = 0; x < W; x++) { if (dark(x, y)) { if (++run > best) best = run; } else run = 0; }
+                rowRun[y] = best;
+            }
+            const detectLines = (ratio) => {                   // 오선 '선'들의 중심 y 목록
+                const th = ratio * W, out = [];
+                let y = 0;
+                while (y < H) {
+                    if (rowRun[y] >= th) { let y2 = y; while (y2 < H && rowRun[y2] >= th) y2++; out.push((y + y2 - 1) / 2); y = y2; }
+                    else y++;
+                }
+                return out;
+            };
+            let lines = detectLines(0.5);
+            if (lines.length < 5) lines = detectLines(0.35);   // 여백 큰 악보 대비 재시도
+            if (lines.length < 5) { alert('오선을 찾지 못했습니다. 이 악보는 수동으로 그려주세요.'); return; }
+
+            // 2) 선들을 간격 급증 지점에서 끊어 '오선 세트(5줄)'로 묶는다.
+            const gaps = []; for (let i = 1; i < lines.length; i++) gaps.push(lines[i] - lines[i - 1]);
+            const med = [...gaps].sort((a, b) => a - b)[Math.floor(gaps.length / 2)] || 1;
+            const groups = []; let cur = [lines[0]];
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i] - lines[i - 1] > med * 2.2) { groups.push(cur); cur = [lines[i]]; }
+                else cur.push(lines[i]);
+            }
+            groups.push(cur);
+            const sets = groups.filter(g => g.length >= 4 && g.length <= 7);  // 5줄 안팎만 오선 인정
+            if (!sets.length) { alert('오선 세트를 인식하지 못했습니다. 수동으로 그려주세요.'); return; }
+
+            // 3) 오선 세트별로 좌우 끝과 마디선을 찾아 마디 구획 생성.
+            const staffs = [];
+            for (let s = 0; s < sets.length; s++) {
+                const g = sets[s], topL = Math.round(g[0]), botL = Math.round(g[g.length - 1]);
+                const span = (botL - topL) || 1, midY = Math.round((topL + botL) / 2);
+                // 좌우 끝: 오선 위/중간/아래 행에서 잉크 시작·끝 열
+                let xs = W, xe = 0;
+                for (let x = 0; x < W; x++) if (dark(x, topL) || dark(x, midY) || dark(x, botL)) { if (x < xs) xs = x; if (x > xe) xe = x; }
+                if (xe <= xs) { xs = 0; xe = W - 1; }
+                // 마디선: 열마다 [topL,botL] 안 '가장 긴 연속 잉크'가 오선 높이의 대부분이면 마디선
+                const need = span * 0.82, cols = [];
+                for (let x = xs; x <= xe; x++) {
+                    let run = 0, best = 0;
+                    for (let y = topL; y <= botL; y++) { if (dark(x, y)) { if (++run > best) best = run; } else run = 0; }
+                    if (best >= need) cols.push(x);
+                }
+                const bars = [];                               // 인접 열 병합 → 마디선 x
+                for (let i = 0; i < cols.length; i++) { let j = i; while (j + 1 < cols.length && cols[j + 1] - cols[j] <= 3) j++; bars.push(Math.round((cols[i] + cols[j]) / 2)); i = j; }
+                let bounds = [xs, ...bars, xe].sort((a, b) => a - b).filter((v, i, a) => i === 0 || v - a[i - 1] > 4);
+
+                // 세로 밴드(음표·기둥 포함): 오선 높이만큼 위아래 확장, 이웃과는 중점에서 클램프
+                let yTop = topL - span, yBot = botL + span;
+                if (s > 0) { const p = sets[s - 1]; yTop = Math.max(yTop, (p[p.length - 1] + topL) / 2); }
+                if (s < sets.length - 1) { const n = sets[s + 1]; yBot = Math.min(yBot, (botL + n[0]) / 2); }
+                yTop = Math.max(0, yTop); yBot = Math.min(H, yBot);
+
+                // 경계 사이 구획 → 마디. 너무 얇은 조각(음자리표/조표)은 다음(마지막이면 이전) 마디에 합침.
+                const segs = []; for (let i = 0; i < bounds.length - 1; i++) segs.push({ x: bounds[i], w: bounds[i + 1] - bounds[i] });
+                const minW = Math.max(12, span * 0.6);
+                for (let i = 0; i < segs.length; i++) {
+                    if (segs[i].w < minW) {
+                        if (i + 1 < segs.length) { segs[i + 1].x = segs[i].x; segs[i + 1].w += segs[i].w; segs.splice(i, 1); i--; }
+                        else if (i > 0) { segs[i - 1].w += segs[i].w; segs.splice(i, 1); i--; }
+                    }
+                }
+                if (segs.length) staffs.push({ y: yTop, h: yBot - yTop, measures: segs });
+            }
+            if (!staffs.length) { alert('마디선을 찾지 못했습니다. 수동으로 조정해주세요.'); return; }
+
+            app.editor.saveHist();
+            app.state.pageData[app.state.curPage] = staffs;
+            app.editor.refreshUI();
+            const mc = staffs.reduce((a, st) => a + st.measures.length, 0);
+            alert(`자동 검출 완료: 오선 ${staffs.length}행, 마디 ${mc}개.\n어긋난 부분은 마디의 +/− 와 테두리 드래그로 보정하세요.`);
+        },
+        refreshUI: () => {
+            const ui = document.getElementById('ui-layer'); ui.innerHTML = '';
+            (app.state.pageData[app.state.curPage] || []).forEach((st, si) => {
+                st.measures.forEach((m, mi) => {
+                    const box = document.createElement('div'); box.className = 'measure-box'; box.style = `left:${m.x}px; top:${st.y}px; width:${m.w}px; height:${st.h}px;`;
+                    const h = document.createElement('div'); h.className = 'measure-handle'; h.innerHTML = `<i class="fa-solid fa-plus" onclick="app.editor.modM(${si},${mi},1)"></i><i class="fa-solid fa-minus" onclick="app.editor.modM(${si},${mi},-1)"></i>`;
+                    box.appendChild(h);
+                    if(mi===0) {
+                        const sc = document.createElement('div'); sc.className = 'staff-ctrl'; sc.innerHTML = `<button class="btn-staff" style="background:var(--blue)" onclick="app.editor.modS(${si},1)">+</button><button class="btn-staff" style="background:#95a5a6" onclick="app.editor.modS(${si},-1)">-</button>`;
+                        box.append(sc, app.editor.createResizer(si, mi, 'left'), app.editor.createResizer(si, mi, 'top'));
+                    }
+                    box.append(app.editor.createResizer(si, mi, 'right'), app.editor.createResizer(si, mi, 'bottom')); ui.appendChild(box);
+                });
+            });
+            app.editor.applyOverlayScale();
+            app.editor.updatePreview();
+        },
+        createResizer: (si, mi, side) => {
+            const el = document.createElement('div'); el.className = `resizer resizer-${(side==='top'||side==='bottom')?'h':'v'} resizer-${side}`;
+            el.onmousedown = el.ontouchstart = e => {
+                e.preventDefault(); app.editor.saveHist();
+                const st = app.state.pageData[app.state.curPage][si], m = st.measures[mi];
+                const { cx: sX, cy: sY } = app.editor.pointerXY(e);
+                const iW = m.w, iH = st.h, iY = st.y, iX = m.x;
+                // 화면에 맞춰 캔버스가 줄어든 경우, 손가락 이동(표시 px)을 내부 px 로 환산.
+                const pc = document.getElementById('pdf-canvas');
+                const k = pc.getBoundingClientRect().width ? pc.width / pc.getBoundingClientRect().width : 1;
+                const move = ev => {
+                    if(ev.touches) ev.preventDefault();
+                    const { cx: cX, cy: cY } = app.editor.pointerXY(ev);
+                    const dx = (cX - sX) * k, dy = (cY - sY) * k;
+                    if(side==='right') { m.w = Math.max(10, iW + dx); st.measures.slice(mi+1).forEach((nm, ni) => nm.x = st.measures[mi+ni].x+st.measures[mi+ni].w); }
+                    else if(side==='left') { m.x = iX + dx; m.w = Math.max(10, iW - dx); }
+                    else if(side==='bottom') st.h = Math.max(10, iH + dy);
+                    else if(side==='top') { st.y = iY + dy; st.h = Math.max(10, iH - dy); }
+                    app.editor.refreshUI();
+                };
+                const end = () => {
+                    window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', end);
+                    window.removeEventListener('touchmove', move); window.removeEventListener('touchend', end);
+                };
+                window.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
+                window.addEventListener('touchmove', move, { passive: false }); window.addEventListener('touchend', end);
+            };
+            return el;
+        },
+        modM: (si, mi, v) => { app.editor.saveHist(); const s = app.state.pageData[app.state.curPage][si]; if(v>0) s.measures.splice(mi+1,0,{x:s.measures[mi].x+s.measures[mi].w, w:s.measures[mi].w}); else if(s.measures.length>1) s.measures.splice(mi,1); app.editor.refreshUI(); },
+        modS: (si, v) => { app.editor.saveHist(); const p = app.state.pageData[app.state.curPage]; if(v>0) { let ns = JSON.parse(JSON.stringify(p[si])); ns.y += (ns.h * 1.5); p.splice(si+1, 0, ns); } else if(p.length>1) p.splice(si,1); app.editor.refreshUI(); },
+        saveHist: () => { app.state.history = app.state.history.slice(0, app.state.hIdx+1); app.state.history.push(JSON.stringify(app.state.pageData)); app.state.hIdx++; },
+        undo: () => { if(app.state.hIdx>0) { app.state.pageData = JSON.parse(app.state.history[--app.state.hIdx]); app.editor.refreshUI(); } },
+        redo: () => { if(app.state.hIdx < app.state.history.length-1) { app.state.pageData = JSON.parse(app.state.history[++app.state.hIdx]); app.editor.refreshUI(); } },
+        updatePreview: () => {
+            const list = document.getElementById('preview-list');
+            list.innerHTML = '';
+            let globalMeasureCount = 0;
+            const totalPages = app.state.pdfDoc ? app.state.pdfDoc.numPages : 0;
+            for (let p = 1; p <= totalPages; p++) {
+                const staffs = app.state.pageData[p] || [];
+                staffs.forEach(st => {
+                    st.measures.forEach(m => {
+                        globalMeasureCount++;
+                        if (p === app.state.curPage) {
+                            const container = document.createElement('div');
+                            container.className = 'preview-item';
+                            const numBadge = document.createElement('div');
+                            numBadge.className = 'm-number';
+                            numBadge.innerText = globalMeasureCount;
+                            const can = document.createElement('canvas');
+                            can.width = m.w; can.height = st.h;
+                            can.getContext('2d').drawImage(document.getElementById('pdf-canvas'), m.x, st.y, m.w, st.h, 0, 0, m.w, st.h);
+                            container.appendChild(numBadge); container.appendChild(can);
+                            list.appendChild(container);
+                        }
+                    });
+                });
+            }
+            document.getElementById('total-m-count').innerText = `${globalMeasureCount} 마디`;
+        },
+        saveJSON: () => {
+            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(app.state.pageData)], {type:'application/json'}));
+            a.download = `sanjuk_measures.json`; a.click();
+        },
+        loadJSON: el => {
+            const r = new FileReader(); r.onload = e => { app.state.pageData = JSON.parse(e.target.result); app.editor.saveHist(); app.editor.refreshUI(); };
+            r.readAsText(el.files[0]); el.value = "";
+        },
+        movePage: v => { if(app.state.pdfDoc && app.state.curPage+v >= 1 && app.state.curPage+v <= app.state.pdfDoc.numPages) { app.state.curPage += v; app.editor.render(); } },
+        initSidebar: () => {
+            const bar = document.getElementById('sidebar-resizer');
+            bar.onmousedown = bar.ontouchstart = (e) => {
+                if(e.touches) e.preventDefault();
+                const move = ev => {
+                    if(ev.touches) ev.preventDefault();
+                    const { cx } = app.editor.pointerXY(ev);
+                    let nw = window.innerWidth - cx;
+                    if(nw > 150 && nw < 500) document.documentElement.style.setProperty('--sidebar-width', nw + 'px');
+                };
+                const end = () => {
+                    window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', end);
+                    window.removeEventListener('touchmove', move); window.removeEventListener('touchend', end);
+                };
+                window.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
+                window.addEventListener('touchmove', move, { passive: false }); window.addEventListener('touchend', end);
+            };
+        }
+    },
+
+    db: {
+        init: () => new Promise(res => {
+            const req = indexedDB.open("SanjukDB", 1);
+            req.onupgradeneeded = e => e.target.result.createObjectStore("pdfs");
+            req.onsuccess = e => { app.state.db = e.target.result; res(); };
+        }),
+        savePDF: (id, blob) => app.state.db.transaction("pdfs", "readwrite").objectStore("pdfs").put(blob, String(id)),
+        getPDF: id => new Promise(res => {
+            if(!app.state.db) return res(null);
+            const req = app.state.db.transaction("pdfs", "readonly").objectStore("pdfs").get(String(id));
+            req.onsuccess = () => res(req.result);
+            req.onerror = () => res(null);
+        })
+    },
+    data: {
+        save: () => localStorage.setItem('sanjuk_system', JSON.stringify({songs: app.state.songs})),
+        load: async () => {
+            const d = JSON.parse(localStorage.getItem('sanjuk_system') || '{"songs":[]}');
+            app.state.songs = d.songs; 
+            await app.db.init(); 
+            app.logic.renderSongs();
+        },
+        backup: () => {
+            const data = localStorage.getItem('sanjuk_system');
+            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], {type:'application/json'}));
+            a.download = `sanjuk_backup.json`; a.click();
+        },
+        restore: (el) => {
+            const r = new FileReader(); r.onload = e => {
+                localStorage.setItem('sanjuk_system', e.target.result); location.reload();
+            };
+            r.readAsText(el.files[0]);
+        },
+        reset: () => { if(confirm("모든 정보가 삭제됩니다.")) { localStorage.clear(); indexedDB.deleteDatabase("SanjukDB"); location.reload(); } }
+    },
+    ui: {
+        modal: (id, show) => document.getElementById(id).classList[show?'add':'remove']('active'),
+        toggle: id => {
+            const content = document.querySelector(`#sec-${id} .sec-content`);
+            const isOpen = content.classList.toggle('open');
+            document.querySelector(`#sec-${id} .sec-header i`).className = `fa-solid fa-chevron-${isOpen?'up':'down'}`;
+        }
+    },
+    pdf: {
+        handle: async el => {
+            const f = el.files[0]; if(!f) return;
+            const buffer = await f.arrayBuffer();
+            app.state.tempBlob = new Blob([buffer], {type: 'application/pdf'});
+            app.state.pdfDoc = await pdfJS.getDocument(new Uint8Array(buffer)).promise;
+            document.getElementById('open-ed-btn').style.display = 'flex';
+        }
+    },
+    logic: {
+        openAddModal: (id = null) => {
+            const s = id ? app.state.songs.find(x => x.id === id) : null;
+            document.getElementById('edit-song-id').value = s?.id || "";
+            document.getElementById('in-title').value = s?.title || "";
+            app.state.pageData = s ? JSON.parse(JSON.stringify(s.pageData)) : {};
+            document.getElementById('in-min').value = s?.min || 1;
+            document.getElementById('in-max').value = s?.max || 4;
+            document.getElementById('open-ed-btn').style.display = s ? 'flex' : 'none';
+            app.ui.modal('add-song-modal', true);
+        },
+        saveSong: async () => {
+            const id = parseInt(document.getElementById('edit-song-id').value) || Date.now();
+            const song = { 
+                id, title: document.getElementById('in-title').value || "무제", 
+                min: parseInt(document.getElementById('in-min').value), 
+                max: parseInt(document.getElementById('in-max').value), 
+                pageData: app.state.pageData,
+                results: app.state.songs.find(s=>s.id===id)?.results || {} 
+            };
+            const idx = app.state.songs.findIndex(x => x.id == id);
+            if(idx > -1) app.state.songs[idx] = song; else app.state.songs.push(song);
+            if(app.state.tempBlob) await app.db.savePDF(id, app.state.tempBlob);
+            app.data.save(); app.logic.renderSongs(); app.ui.modal('add-song-modal', false);
+            app.state.tempBlob = null; // 초기화
+        },
+        renderSongs: () => {
+            document.getElementById('song-list').innerHTML = app.state.songs.map(s => {
+                const flat = [];
+                Object.keys(s.pageData).forEach(p => {
+                    (s.pageData[p] || []).forEach(st => st.measures.forEach(() => flat.push(1)));
+                });
+                const total = flat.length;
+                const mastered = Object.keys(s.results || {}).filter(k => !k.includes(',') && s.results[k] === '상').length;
+                const percent = total > 0 ? Math.round((mastered / total) * 100) : 0;
+                return `
+                <div class="song-card ${app.state.curSong?.id === s.id ? 'active' : ''}" onclick="app.practice.init(${s.id})">
+                    <div class="song-info">
+                        <strong>${s.title}</strong>
+                        <div class="progress-container"><div class="progress-bar" style="width:${percent}%"></div></div>
+                        <small>${percent}% 완료 (${mastered}/${total} 마디)</small>
+                    </div>
+                    <button class="ed-btn" onclick="event.stopPropagation(); app.logic.openAddModal(${s.id})">수정</button>
+                </div>`;
+            }).join('') || "등록된 곡이 없습니다.";
+        },
+        deleteSong: () => {
+            const id = parseInt(document.getElementById('edit-song-id').value);
+            if(id && confirm("이 곡과 모든 마디 설정이 삭제됩니다.")) {
+                app.state.songs = app.state.songs.filter(s => s.id !== id);
+                app.data.save();
+                location.reload(); 
+            }
+        },
+        resetProgress: () => {
+            const id = parseInt(document.getElementById('edit-song-id').value);
+            if(id && confirm("이 곡의 연습 기록(상/중/하)을 모두 초기화할까요?")) {
+                const song = app.state.songs.find(s => s.id === id);
+                if(song) {
+                    song.results = {};
+                    if(app.state.curSong && app.state.curSong.id === id) app.practice.evals = {};
+                }
+                app.data.save();
+                app.logic.renderSongs();
+                app.ui.modal('add-song-modal', false);
+            }
+        }
+    }
+};
+
+window.onload = () => {
+    app.data.load();
+    // 창 크기/방향이 바뀌면 마디 박스 오버레이를 다시 정렬(에디터 열려 있을 때만 의미).
+    window.addEventListener('resize', () => app.editor.applyOverlayScale());
+};
+</script>
+</body>
+</html>
