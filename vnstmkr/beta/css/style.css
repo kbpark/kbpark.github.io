@@ -33,6 +33,7 @@ body {
   align-items: stretch;
   overflow: hidden;
   user-select: none;
+  touch-action: manipulation;
 }
 
 img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
@@ -62,8 +63,8 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 }
 .title-screen.hide { opacity: 0; transform: scale(1.02); pointer-events: none; }
 .title-card {
-  width: min(82%, 330px);
-  padding: 30px 24px 24px;
+  width: min(92%, 360px);
+  padding: 30px 20px 24px;
   text-align: center;
   border: 1px solid rgba(255,209,102,.38);
   border-radius: 18px;
@@ -80,9 +81,13 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 }
 .title-logo {
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 34px; line-height: 1.02; font-weight: 900;
+  font-size: clamp(28px, 8vw, 34px); line-height: 1.05; font-weight: 900;
   color: #fff4c8;
   text-shadow: 0 3px 0 #4a2640, 0 10px 22px rgba(0,0,0,.45);
+}
+.title-logo span {
+  display: block;
+  white-space: nowrap;
 }
 .title-sub {
   margin-top: 8px;
@@ -197,6 +202,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
   position: relative; flex: 1 1 auto; min-height: 210px;
   display: flex; align-items: flex-end; justify-content: center;
   overflow: hidden;
+  touch-action: manipulation;
 }
 .stage-bg { position: absolute; inset: 0; z-index: 0; }
 .stage-bg .bg-svg, .stage-bg .bg-img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -237,6 +243,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
   min-width: 54px; height: 54px; padding: 0 6px; border-radius: 27px; border: none;
   cursor: pointer; font-size: 22px; font-weight: 800; line-height: 1;
   display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: var(--shadow);
+  touch-action: manipulation;
 }
 .encore-badge.ready { background: radial-gradient(circle at 50% 35%, #ffb3c8, #ff6b8a); animation: encoreGlow 1.6s ease-in-out infinite; }
 .encore-badge.active { background: radial-gradient(circle at 50% 35%, #ffe6a0, #ffb347); color: #3a1a00; font-size: 17px;

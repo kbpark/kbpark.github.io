@@ -23,6 +23,39 @@ const UI = (() => {
   const startBgm = () => { try { (Audio.ensureBgm || Audio.unlock)(); } catch (_) {} };
   const fmt = (n) => api.fmtNum(n);
   const displayExpr = (who, expr) => who === 'leon' ? 'neutral' : (expr || 'neutral');
+  let titleEnterHandler = null;
+
+  function bindPress(node, handler, opts) {
+    if (!node) return;
+    opts = opts || {};
+    let startX = 0, startY = 0, moved = false;
+    const invoke = (e) => {
+      if (opts.stop) e.stopPropagation();
+      if (opts.prevent !== false && e.cancelable) e.preventDefault();
+      handler(e);
+    };
+    if (window.PointerEvent) {
+      node.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        startX = e.clientX || 0; startY = e.clientY || 0; moved = false;
+      }, { passive: true });
+      node.addEventListener('pointermove', (e) => {
+        if (Math.abs((e.clientX || 0) - startX) + Math.abs((e.clientY || 0) - startY) > 14) moved = true;
+      }, { passive: true });
+      node.addEventListener('pointerup', (e) => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        if (moved) return;
+        invoke(e);
+      }, { passive: false });
+      node.addEventListener('click', (e) => {
+        if (e.detail !== 0) return; // pointer taps are handled by pointerup; keep keyboard activation.
+        invoke(e);
+      });
+    } else {
+      node.addEventListener('touchend', invoke, { passive: false });
+      node.addEventListener('click', invoke);
+    }
+  }
 
   /* ---- 초기화 ---------------------------------------------------------- */
   function init(gameApi) {
@@ -45,19 +78,21 @@ const UI = (() => {
     };
 
     // 그림(무대)을 탭 = 연습, 그림 속 🎭 아이콘 탭 = 감정 폭발
-    el.stage.addEventListener('click', (e) => { lastTap = { x: e.clientX, y: e.clientY }; api.tap(); });
-    el.encoreBtn.addEventListener('click', (e) => { e.stopPropagation(); unlock(); api.encore(); });
-    el.resetBtn.addEventListener('click', () => api.restart());
-    el.questBtn.addEventListener('click', () => api.questAction());
-    el.buymodeBtn.addEventListener('click', () => api.cycleBuyMode());
-    el.dialogue.addEventListener('click', () => { unlock(); advanceDialogue(); });
-    el.bgmBtn.addEventListener('click', (e) => { e.stopPropagation(); unlock(); syncBgm(api.toggleBgm()); });
-    el.sfxBtn.addEventListener('click', (e) => { e.stopPropagation(); unlock(); syncSfx(api.toggleSfx()); });
-    el.ending.addEventListener('click', advanceEnding);
-    el.endRestart.addEventListener('click', (e) => { e.stopPropagation(); api.restart(); });
+    bindPress(el.stage, (e) => { unlock(); lastTap = { x: e.clientX || 0, y: e.clientY || 0 }; api.tap(); });
+    bindPress(el.encoreBtn, () => { unlock(); api.encore(); }, { stop: true });
+    bindPress(el.resetBtn, () => api.restart());
+    bindPress(el.questBtn, () => { unlock(); api.questAction(); });
+    bindPress(el.buymodeBtn, () => api.cycleBuyMode());
+    bindPress(el.dialogue, () => { unlock(); advanceDialogue(); });
+    bindPress(el.bgmBtn, () => { unlock(); syncBgm(api.toggleBgm()); }, { stop: true });
+    bindPress(el.sfxBtn, () => { unlock(); syncSfx(api.toggleSfx()); }, { stop: true });
+    bindPress(el.ending, () => { unlock(); advanceEnding(); });
+    bindPress(el.endRestart, () => api.restart(), { stop: true });
     el.tabs.querySelectorAll('.tab').forEach((b) =>
-      b.addEventListener('click', () => switchTab(b.dataset.tab)));
+      bindPress(b, () => switchTab(b.dataset.tab)));
+    bindPress(el.titleStart, () => { startBgm(); if (titleEnterHandler) titleEnterHandler(); }, { stop: true });
     document.addEventListener('pointerdown', unlock, { once: true, capture: true });
+    document.addEventListener('touchstart', unlock, { once: true, capture: true, passive: true });
     document.addEventListener('keydown', unlock, { once: true, capture: true });
 
     setBackground(null);
@@ -79,12 +114,12 @@ const UI = (() => {
     if (el.titleNote) el.titleNote.textContent = hasSave ? '이어 하는 중...' : '처음부터 시작합니다';
     if (el.titleStart) {
       el.titleStart.classList.toggle('hidden', hasSave);
-      el.titleStart.onclick = null;
+      titleEnterHandler = null;
     }
     if (hasSave) {
       setTimeout(enter, 1000);
     } else if (el.titleStart) {
-      el.titleStart.onclick = (e) => { e.stopPropagation(); startBgm(); enter(); };
+      titleEnterHandler = enter;
     }
   }
 
@@ -159,7 +194,7 @@ const UI = (() => {
         `<div class="ic-top"><span class="ic-icon">${s.icon}</span><span class="ic-label">${s.label}</span><span class="ic-lv" data-lv></span></div>
          <div class="ic-desc">${s.desc}</div>
          <div class="ic-foot"><span class="ic-eff" data-eff></span><span class="ic-cost" data-cost></span></div>`;
-      card.addEventListener('click', () => api.buySkill(key));
+      bindPress(card, () => api.buySkill(key));
       grid.appendChild(card);
       updaters.push(() => {
         const eff = api.skillEffect(key), p = api.skillPlan(key), c = costLabel(p, api.skillCost(key));
@@ -187,7 +222,7 @@ const UI = (() => {
            <span class="hl-rate" data-rate></span>
          </span>
          <span class="hl-cost" data-cost></span>`;
-      card.addEventListener('click', () => api.buyHelper(h.id));
+      bindPress(card, () => api.buyHelper(h.id));
       list.appendChild(card);
       updaters.push(() => {
         const cnt = GameState.helperCount(h.id);
@@ -217,7 +252,7 @@ const UI = (() => {
         `<span class="up-icon">${u.icon}</span>
          <span class="up-body"><b>${u.label}</b><span class="up-desc">${u.desc}</span></span>
          <span class="up-cost">${state === 'owned' ? '✔ 보유' : '💰 ' + fmt(u.cost)}</span>`;
-      if (state === 'available') card.addEventListener('click', () => api.buyUpgrade(u.id));
+      if (state === 'available') bindPress(card, () => api.buyUpgrade(u.id));
       list.appendChild(card);
       updaters.push(() => {
         if (api.upgradeState(u.id) === 'available')
@@ -288,7 +323,7 @@ const UI = (() => {
       };
       setSub();
       if (phase === 'active') updaters.push(setSub);
-      if (phase === 'ready') row.addEventListener('click', () => api.startQuest());
+      if (phase === 'ready') bindPress(row, () => { unlock(); api.startQuest(); });
       list.appendChild(row);
     }
     el.panel.appendChild(list);
@@ -497,13 +532,13 @@ const UI = (() => {
     el.dlgChoices.innerHTML = ''; el.dlgChoices.classList.add('show');
     choice.options.forEach((opt) => {
       const b = document.createElement('button'); b.className = 'choice-btn'; b.textContent = opt.label;
-      b.addEventListener('click', (e) => {
-        e.stopPropagation(); unlock(); try { Audio.blip(); } catch (_) {}
+      bindPress(b, () => {
+        unlock(); try { Audio.blip(); } catch (_) {}
         api.addAffection(opt.aff || 0); renderAffection();
         el.dlgChoices.classList.remove('show'); el.dlgChoices.innerHTML = ''; awaitingChoice = false;
         if (opt.reply) dq.unshift(opt.reply);
         advanceDialogue();
-      });
+      }, { stop: true });
       el.dlgChoices.appendChild(b);
     });
   }
