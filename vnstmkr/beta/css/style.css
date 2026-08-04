@@ -302,7 +302,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 
 /* ---- 4) 조작부: 탭 버튼 + 스킬 그리드 -------------------------------- */
 .controls {
-  padding: 10px 16px calc(52px + env(safe-area-inset-bottom));
+  padding: 8px 12px calc(14px + env(safe-area-inset-bottom));
   background: linear-gradient(180deg, #221a33, #1b1428);
   border-top: 1px solid var(--line);
 }
@@ -349,7 +349,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 .buymode-btn.hidden { display: none; }
 
 /* ---- 패널(스크롤 영역) ------------------------------------------------ */
-.panel { max-height: 37svh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 2px; padding-bottom: 56px; }
+.panel { max-height: 42svh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 2px; padding-bottom: 4px; }
 .panel-hint { font-size: 11px; color: var(--text-dim); padding: 4px 2px 8px; }
 .card-grid.two { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .card-list { display: flex; flex-direction: column; gap: 8px; }
@@ -357,15 +357,15 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 /* 아이콘 카드(스킬 공용) */
 .ic-card {
   display: flex; flex-direction: column; gap: 4px; text-align: left; cursor: pointer;
-  padding: 7px 8px; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--line); color: var(--text);
+  padding: 6px 7px; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--line); color: var(--text);
   transition: transform .05s ease, border-color .15s ease;
 }
 .ic-top { display: flex; align-items: center; gap: 5px; }
-.ic-icon { font-size: 16px; } .ic-label { font-size: 12px; font-weight: 700; }
+.ic-icon { font-size: 15px; } .ic-label { font-size: 11.5px; font-weight: 700; }
 .ic-lv { margin-left: auto; font-size: 10px; color: var(--text-dim); }
-.ic-desc { font-size: 9.5px; line-height: 1.22; color: var(--text-dim); min-height: 22px; }
+.ic-desc { font-size: 9px; line-height: 1.18; color: var(--text-dim); min-height: 0; }
 .ic-foot { display: flex; align-items: center; justify-content: space-between; }
-.ic-eff { font-size: 9.5px; color: var(--leon); } .ic-cost { font-size: 10px; color: var(--gold); font-weight: 700; }
+.ic-eff { font-size: 9px; color: var(--leon); } .ic-cost { font-size: 9.5px; color: var(--gold); font-weight: 700; }
 .ic-card.affordable { border-color: var(--gold); box-shadow: 0 0 0 1px rgba(255,209,102,.25) inset; }
 .ic-card:active { transform: scale(.97); }
 
