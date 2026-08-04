@@ -167,21 +167,21 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 
 /* ---- 2) 퀘스트 배너 --------------------------------------------------- */
 .quest {
-  padding: 12px 16px;
+  padding: 7px 12px;
   background: var(--bg-panel);
   border-bottom: 1px solid var(--line);
 }
 .quest-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
-.quest-title { font-size: 15px; font-weight: 700; }
-.quest-book  { font-size: 11px; color: var(--text-dim); white-space:nowrap; }
-.quest-req { display:flex; flex-wrap:wrap; gap:6px; margin: 8px 0; }
+.quest-title { font-size: 14px; font-weight: 700; }
+.quest-book  { font-size: 10px; color: var(--text-dim); white-space:nowrap; }
+.quest-req { display:flex; flex-wrap:wrap; gap:4px; margin: 5px 0; }
 .req-badge {
-  font-size: 11px; padding: 3px 8px; border-radius: 10px;
+  font-size: 10px; padding: 2px 7px; border-radius: 9px;
   background: var(--bg-card); color: var(--text-dim); border: 1px solid var(--line);
 }
 .req-badge.ok { color: var(--ok); border-color: var(--ok); }
 .quest-btn {
-  width: 100%; padding: 9px; border: none; border-radius: 10px; font-size: 13px; font-weight: 700;
+  width: 100%; padding: 7px; border: none; border-radius: 9px; font-size: 12px; font-weight: 700;
   color: #23132a; background: linear-gradient(180deg, #ffe08a, var(--gold)); cursor: pointer;
 }
 .quest-btn:disabled { background: var(--bg-card); color: var(--text-dim); cursor: default; }
