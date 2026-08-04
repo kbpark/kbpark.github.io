@@ -42,7 +42,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 #app {
   width: 100%;
   max-width: 480px;
-  height: 100dvh;
+  height: 100svh;
   display: flex;
   flex-direction: column;   /* 헤더 / 사랑 게이지 / 퀘스트 / 무대(신축) / 조작부 */
   background: var(--bg-deep);
@@ -130,17 +130,17 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 .brand { min-width: 0; flex: 0 0 auto; }
 .logo {
   display: inline-flex; align-items: center; gap: 5px;
-  padding: 4px 6px 5px;
+  padding: 4px 5px 5px;
   border-radius: 10px;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 12px; line-height: 1; font-weight: 900;
+  font-size: 10.5px; line-height: 1; font-weight: 900;
   color: #fff4c8;
   background: linear-gradient(180deg, rgba(58,42,86,.95), rgba(35,25,55,.95));
   border: 1px solid rgba(255,209,102,.35);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
   white-space: nowrap;
 }
-.logo-text { display: inline-block; max-width: 72px; overflow: hidden; text-overflow: ellipsis; }
+.logo-text { display: inline-block; max-width: 116px; overflow: hidden; text-overflow: ellipsis; }
 .logo-mark {
   display: grid; place-items: center;
   width: 21px; height: 21px;
@@ -201,7 +201,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 
 /* ---- 3) 무대 (아카데미 배경 + 3인 캐릭터) ---------------------------- */
 .stage {
-  position: relative; flex: 0 1 34svh; min-height: 150px; max-height: 280px;
+  position: relative; flex: 0 1 28svh; min-height: 160px; max-height: 220px;
   display: flex; align-items: flex-end; justify-content: center;
   overflow: hidden;
   touch-action: manipulation;
@@ -214,7 +214,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
   width: min(122%, 640px); height: 100%;
   display: flex; align-items: flex-end; justify-content: center; gap: 0;
   padding-bottom: 6px;
-  transform: translateY(2px);
+  transform: translateY(14px);
 }
 .cast-slot {
   display: flex; align-items: flex-end; justify-content: center;
@@ -231,8 +231,8 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 #cast-andrea .portrait-svg, #cast-andrea .char-img { animation-name: characterIdleAndrea; animation-duration: 3.2s; animation-delay: -.4s; }
 #cast-leon .portrait-svg, #cast-leon .char-img     { animation-name: characterIdleLeon;   animation-duration: 2.6s; animation-delay: -.1s; }
 #cast-violet .portrait-svg, #cast-violet .char-img { animation-name: characterIdleViolet; animation-duration: 3s;   animation-delay: -.7s; }
-.cast-slot.side   { width: clamp(132px, 39%, 235px); height: clamp(190px, 91%, 390px); opacity: .95; }
-.cast-slot.center { width: clamp(170px, 50%, 300px); height: clamp(220px, 104%, 430px); margin: 0 clamp(-68px, -11vw, -38px); z-index: 2; } /* 레온 중앙·크게(겹침 허용) */
+.cast-slot.side   { width: clamp(112px, 34%, 190px); height: clamp(145px, 84%, 240px); opacity: .95; }
+.cast-slot.center { width: clamp(142px, 43%, 230px); height: clamp(168px, 94%, 270px); margin: 0 clamp(-52px, -8vw, -30px); z-index: 2; } /* 레온 중앙·크게(겹침 허용) */
 .cast-slot .char-img { object-fit: contain; object-position: bottom center; } /* 캐릭터 PNG(투명배경) */
 .cast-slot.bounce { animation: castBounce .2s ease; }
 @keyframes castBounce { 0%,100%{transform:translateY(0) scale(1)} 45%{transform:translateY(-9px) scale(1.05)} }
@@ -302,7 +302,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 
 /* ---- 4) 조작부: 탭 버튼 + 스킬 그리드 -------------------------------- */
 .controls {
-  padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+  padding: 10px 16px calc(52px + env(safe-area-inset-bottom));
   background: linear-gradient(180deg, #221a33, #1b1428);
   border-top: 1px solid var(--line);
 }
@@ -349,7 +349,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 .buymode-btn.hidden { display: none; }
 
 /* ---- 패널(스크롤 영역) ------------------------------------------------ */
-.panel { max-height: 34svh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 2px; }
+.panel { max-height: 37svh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 2px; padding-bottom: 56px; }
 .panel-hint { font-size: 11px; color: var(--text-dim); padding: 4px 2px 8px; }
 .card-grid.two { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .card-list { display: flex; flex-direction: column; gap: 8px; }

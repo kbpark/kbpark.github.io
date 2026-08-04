@@ -20,7 +20,7 @@ const Audio = (() => {
     // ... 10: 'assets/audio/q10.mp3',
   };
   const BGM_VOL = 0.26;
-  const SFX_VOL = 0.22;
+  const SFX_VOL = 0.34;
 
   let ctx = null, master = null, bgmGain = null, sfxGain = null, reverbInput = null;
   let bgmOn = true, sfxOn = true;
@@ -185,10 +185,11 @@ const Audio = (() => {
   /* ---- 타건 SFX -------------------------------------------------------- */
   function tap() {
     if (!unlocked) unlock();
+    else resumeAndStartBGM(false);
     if (!ctx) return;
     duckBgm();
     const note = TAP_KAYSER[tapIdx++ % TAP_KAYSER.length];
-    playNote(freq(note), ctx.currentTime, 0.2, sfxGain, 0.055, { attack: 0.018, release: 0.08, reverb: 0.12 });
+    playNote(freq(note), ctx.currentTime, 0.2, sfxGain, 0.12, { attack: 0.018, release: 0.08, reverb: 0.12 });
   }
 
   function duckBgm() {
