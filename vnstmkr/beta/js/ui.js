@@ -113,12 +113,11 @@ const UI = (() => {
     el.titleScreen.classList.remove('hidden', 'hide');
     if (el.titleNote) el.titleNote.textContent = hasSave ? '이어 하는 중...' : '처음부터 시작합니다';
     if (el.titleStart) {
-      el.titleStart.classList.toggle('hidden', hasSave);
+      el.titleStart.classList.remove('hidden');
+      el.titleStart.textContent = hasSave ? '계속하기' : '게임시작';
       titleEnterHandler = null;
     }
-    if (hasSave) {
-      setTimeout(enter, 1000);
-    } else if (el.titleStart) {
+    if (el.titleStart) {
       titleEnterHandler = enter;
     }
   }

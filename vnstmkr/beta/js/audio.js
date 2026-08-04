@@ -20,7 +20,7 @@ const Audio = (() => {
     // ... 10: 'assets/audio/q10.mp3',
   };
   const BGM_VOL = 0.26;
-  const SFX_VOL = 0.46;
+  const SFX_VOL = 0.22;
 
   let ctx = null, master = null, bgmGain = null, sfxGain = null, reverbInput = null;
   let bgmOn = true, sfxOn = true;
@@ -188,7 +188,7 @@ const Audio = (() => {
     if (!ctx) return;
     duckBgm();
     const note = TAP_KAYSER[tapIdx++ % TAP_KAYSER.length];
-    playNote(freq(note), ctx.currentTime, 0.24, sfxGain, 0.18, { attack: 0.02, release: 0.1, reverb: 0.16 });
+    playNote(freq(note), ctx.currentTime, 0.2, sfxGain, 0.055, { attack: 0.018, release: 0.08, reverb: 0.12 });
   }
 
   function duckBgm() {

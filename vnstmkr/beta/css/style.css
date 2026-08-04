@@ -122,35 +122,37 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  gap: 6px;
+  padding: 6px 8px;
   background: linear-gradient(180deg, #2a2140, #221a33);
   border-bottom: 1px solid var(--line);
 }
-.brand { min-width: 0; }
+.brand { min-width: 0; flex: 0 0 auto; }
 .logo {
   display: inline-flex; align-items: center; gap: 5px;
-  padding: 5px 8px 6px;
-  border-radius: 12px;
+  padding: 4px 6px 5px;
+  border-radius: 10px;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 15px; line-height: 1; font-weight: 900;
+  font-size: 12px; line-height: 1; font-weight: 900;
   color: #fff4c8;
   background: linear-gradient(180deg, rgba(58,42,86,.95), rgba(35,25,55,.95));
   border: 1px solid rgba(255,209,102,.35);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
   white-space: nowrap;
 }
+.logo-text { display: inline-block; max-width: 72px; overflow: hidden; text-overflow: ellipsis; }
 .logo-mark {
   display: grid; place-items: center;
-  width: 22px; height: 22px;
+  width: 21px; height: 21px;
   border-radius: 50%;
   font-size: 14px;
   background: radial-gradient(circle at 50% 35%, #fff0b8, var(--gold));
 }
 .brand small { display:none; }
-.top-right { display: flex; align-items: center; gap: 7px; }
+.top-right { display: flex; align-items: center; gap: 5px; min-width: 0; }
 .sound-btns { display: flex; gap: 4px; }
 .snd-btn {
-  width: 27px; height: 27px; border-radius: 8px; cursor: pointer;
+  width: 26px; height: 26px; border-radius: 8px; cursor: pointer;
   border: 1px solid var(--line); background: var(--bg-card); color: var(--text);
   font-size: 13px; line-height: 1; display: grid; place-items: center;
 }
@@ -158,7 +160,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 .snd-btn.off { opacity: .45; border-style: dashed; }
 .snd-btn.reset { color: #ff9db0; font-size: 17px; font-weight: 700; }
 .wallet { text-align: right; }
-.wallet .amount { font-size: 16px; font-weight: 800; color: var(--gold); line-height: 1; }
+.wallet .amount { font-size: 15px; font-weight: 800; color: var(--gold); line-height: 1; }
 .wallet .label  { font-size: 10px; color: var(--text-dim); }
 .rates { display:flex; gap:4px; margin-top:2px; font-size:9px; color: var(--text-dim); justify-content:flex-end; }
 .rates span { background: var(--bg-card); padding: 1px 5px; border-radius: 7px; }
@@ -199,7 +201,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 
 /* ---- 3) 무대 (아카데미 배경 + 3인 캐릭터) ---------------------------- */
 .stage {
-  position: relative; flex: 1 1 auto; min-height: 210px;
+  position: relative; flex: 0 1 34svh; min-height: 150px; max-height: 280px;
   display: flex; align-items: flex-end; justify-content: center;
   overflow: hidden;
   touch-action: manipulation;
@@ -347,7 +349,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 .buymode-btn.hidden { display: none; }
 
 /* ---- 패널(스크롤 영역) ------------------------------------------------ */
-.panel { max-height: 25vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 2px; }
+.panel { max-height: 34svh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 2px; }
 .panel-hint { font-size: 11px; color: var(--text-dim); padding: 4px 2px 8px; }
 .card-grid.two { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .card-list { display: flex; flex-direction: column; gap: 8px; }
@@ -447,7 +449,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 @keyframes fadeIn { from{opacity:0} to{opacity:1} }
 .dialogue-portrait {
   position: absolute; z-index: 1;
-  right: 2px; bottom: 114px;
+  right: 2px; bottom: 82px;
   width: min(58vw, 250px); height: min(56vh, 340px);
   display: flex; align-items: flex-end; justify-content: center;
   pointer-events: none;
