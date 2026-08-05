@@ -63,6 +63,7 @@ const UI = (() => {
     el = {
       points: id('points'), perTap: id('per-tap'), perSec: id('per-sec'),
       titleScreen: id('title-screen'), titleNote: id('title-note'), titleStart: id('title-start'),
+      settingsBtn: id('settings-btn'), settingsMenu: id('settings-menu'),
       bgmBtn: id('bgm-btn'), sfxBtn: id('sfx-btn'), resetBtn: id('reset-btn'),
       stage: id('stage'), encoreBtn: id('encore-btn'), buymodeBtn: id('buymode-btn'), panel: id('panel'), tabs: id('tabs'),
       questTitle: id('quest-title'), questBook: id('quest-book'),
@@ -80,12 +81,13 @@ const UI = (() => {
     // 그림(무대)을 탭 = 연습, 그림 속 🎭 아이콘 탭 = 감정 폭발
     bindPress(el.stage, (e) => { unlock(); lastTap = { x: e.clientX || 0, y: e.clientY || 0 }; api.tap(); });
     bindPress(el.encoreBtn, () => { unlock(); api.encore(); }, { stop: true });
-    bindPress(el.resetBtn, () => api.restart());
+    bindPress(el.settingsBtn, () => toggleSettings(), { stop: true });
+    bindPress(el.resetBtn, () => { closeSettings(); api.restart(); }, { stop: true });
     bindPress(el.questBtn, () => { unlock(); api.questAction(); });
     bindPress(el.buymodeBtn, () => api.cycleBuyMode());
     bindPress(el.dialogue, () => { unlock(); advanceDialogue(); });
-    bindPress(el.bgmBtn, () => { unlock(); syncBgm(api.toggleBgm()); }, { stop: true });
-    bindPress(el.sfxBtn, () => { unlock(); syncSfx(api.toggleSfx()); }, { stop: true });
+    bindPress(el.bgmBtn, () => { unlock(); syncBgm(api.toggleBgm()); closeSettings(); }, { stop: true });
+    bindPress(el.sfxBtn, () => { unlock(); syncSfx(api.toggleSfx()); closeSettings(); }, { stop: true });
     bindPress(el.ending, () => { unlock(); advanceEnding(); });
     bindPress(el.endContinue, () => continueAfterEnding(), { stop: true });
     bindPress(el.endRestart, () => api.restart(), { stop: true });
@@ -100,6 +102,14 @@ const UI = (() => {
     renderCastSlot('andrea'); renderCastSlot('leon'); renderCastSlot('violet');
     syncBgm(api.isBgm()); syncSfx(api.isSfx());
     switchTab('skills');
+  }
+
+  function toggleSettings() {
+    if (!el.settingsMenu) return;
+    el.settingsMenu.classList.toggle('hidden');
+  }
+  function closeSettings() {
+    if (el.settingsMenu) el.settingsMenu.classList.add('hidden');
   }
 
   function showTitleScreen(hasSave, onEnter) {

@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#14101d" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>바이올리니스트 메이커</title>
-  <link rel="stylesheet" href="css/style.css?v=19" />
+  <link rel="stylesheet" href="css/style.css?v=20" />
 </head>
 <body>
   <div id="app">
@@ -34,10 +34,13 @@
             <span id="per-sec">초당 +0</span>
           </div>
         </div>
-        <div class="sound-btns">
-          <button class="snd-btn" id="bgm-btn" title="BGM">🎵</button>
-          <button class="snd-btn" id="sfx-btn" title="효과음">🔊</button>
-          <button class="snd-btn reset" id="reset-btn" title="처음부터 초기화">↺</button>
+        <div class="settings">
+          <button class="settings-btn" id="settings-btn" title="설정">⚙</button>
+          <div class="settings-menu hidden" id="settings-menu">
+            <button class="snd-btn" id="bgm-btn" title="BGM">🎵</button>
+            <button class="snd-btn" id="sfx-btn" title="효과음">🔊</button>
+            <button class="snd-btn reset" id="reset-btn" title="처음부터 초기화">↺</button>
+          </div>
         </div>
       </div>
     </header>
@@ -113,11 +116,11 @@
   </div>
 
   <!-- 로드 순서: data → state → portraits → audio → ui → game -->
-  <script src="js/data.js?v=19"></script>
-  <script src="js/state.js?v=19"></script>
-  <script src="js/portraits.js?v=19"></script>
-  <script src="js/audio.js?v=19"></script>
-  <script src="js/ui.js?v=19"></script>
-  <script src="js/game.js?v=19"></script>
+  <script src="js/data.js?v=20"></script>
+  <script src="js/state.js?v=20"></script>
+  <script src="js/portraits.js?v=20"></script>
+  <script src="js/audio.js?v=20"></script>
+  <script src="js/ui.js?v=20"></script>
+  <script src="js/game.js?v=20"></script>
 </body>
 </html>
