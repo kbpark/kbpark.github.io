@@ -300,6 +300,10 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 
 /* ---- 4) 조작부: 탭 버튼 + 스킬 그리드 -------------------------------- */
 .controls {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   padding: 8px 12px calc(14px + env(safe-area-inset-bottom));
   background: linear-gradient(180deg, #221a33, #1b1428);
   border-top: 1px solid var(--line);
@@ -333,7 +337,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 @keyframes encorePulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
 
 /* ---- 탭 바 + 구매모드 ------------------------------------------------- */
-.panel-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.panel-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; flex: 0 0 auto; }
 .tabs { display: flex; gap: 3px; flex: 1; }
 .tab {
   flex: 1; padding: 7px 1px; font-size: 10.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
@@ -347,7 +351,14 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 .buymode-btn.hidden { display: none; }
 
 /* ---- 패널(스크롤 영역) ------------------------------------------------ */
-.panel { max-height: 42svh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 2px; padding-bottom: 4px; }
+.panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 2px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+}
 .panel-hint { font-size: 11px; color: var(--text-dim); padding: 4px 2px 8px; }
 .card-grid.two { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .card-list { display: flex; flex-direction: column; gap: 8px; }
