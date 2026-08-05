@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#14101d" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>바이올리니스트 메이커</title>
-  <link rel="stylesheet" href="css/style.css?v=7" />
+  <link rel="stylesheet" href="css/style.css?v=14" />
 </head>
 <body>
   <div id="app">
@@ -41,14 +41,6 @@
         </div>
       </div>
     </header>
-
-    <!-- 사랑 게이지 -->
-    <div class="affection hidden" id="affection">
-      <span class="aff-face">💜</span>
-      <span class="aff-name">사랑 게이지</span>
-      <span class="aff-hearts" id="aff-hearts">🤍🤍🤍🤍🤍</span>
-      <span class="aff-label" id="aff-label">음악 탐구</span>
-    </div>
 
     <!-- 2) 현재 퀘스트 배너 -->
     <section class="quest">
@@ -107,7 +99,10 @@
         <p class="dlg-line">
           <span class="dlg-name" id="ending-name"></span><span class="dlg-text" id="ending-text"></span>
         </p>
-        <button class="restart-btn hidden" id="ending-restart">↻ 처음부터 다시 연주하기</button>
+        <div class="ending-actions hidden" id="ending-actions">
+          <button class="continue-btn" id="ending-continue" type="button">계속 연습하기</button>
+          <button class="restart-btn" id="ending-restart" type="button">↻ 처음부터 다시 연주하기</button>
+        </div>
         <div class="dlg-next ending-next"></div>
       </div>
     </div>
@@ -118,11 +113,11 @@
   </div>
 
   <!-- 로드 순서: data → state → portraits → audio → ui → game -->
-  <script src="js/data.js?v=7"></script>
-  <script src="js/state.js?v=7"></script>
-  <script src="js/portraits.js?v=7"></script>
-  <script src="js/audio.js?v=7"></script>
-  <script src="js/ui.js?v=7"></script>
-  <script src="js/game.js?v=7"></script>
+  <script src="js/data.js?v=14"></script>
+  <script src="js/state.js?v=14"></script>
+  <script src="js/portraits.js?v=14"></script>
+  <script src="js/audio.js?v=14"></script>
+  <script src="js/ui.js?v=14"></script>
+  <script src="js/game.js?v=14"></script>
 </body>
 </html>

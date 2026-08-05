@@ -158,8 +158,9 @@ const Game = (() => {
     const st = GameState.get(), idx = st.questIndex;
     if (n <= idx) return 'cleared';
     if (n === idx + 1) {
+      if (st.introShown[n]) return 'active';
       if (!preMet(QUESTS[idx])) return 'locked';
-      return st.introShown[n] ? 'active' : 'ready';
+      return 'ready';
     }
     return 'future';
   }

@@ -56,7 +56,7 @@ const GameData = (() => {
   const QUESTS = [
     { n: 1,  title: '반짝반짝 작은별',            book: '스즈키 1권',      pre: {},                    req: { pitch: 7 },
       intro: [
-        { who: 'andrea', expr: 'neutral',   text: '자, 견습생 첫 임무다. 「작은별」부터 정확하게 켜봐라.' },
+        { who: 'andrea', expr: 'neutral',   img: 'assets/img/cg/intro-q1-first-lesson.png', text: '자, 견습생 첫 임무다. 「작은별」부터 정확하게 켜봐라.' },
         { who: 'leon',   expr: 'neutral',   text: '네, 마에스트로! (활을 너무 힘주어 잡다 후다닥 놓치며) 앗, 활털이 다 튀었어?!' },
         { who: 'narr',                      text: '레온이 엉성한 자세로 삐걱거리며 악기를 켜자, 어딘가 어설프지만 묘하게 따뜻한 톤이 흘러나온다.' },
         { who: 'violet', expr: 'proud',     text: '(팔짱을 끼며) 풋… 저게 뭐야. 악기 잡는 법도 모르는 청소부를 대단한 재원처럼 데려오다니.' },
@@ -64,9 +64,9 @@ const GameData = (() => {
         { who: 'andrea', expr: 'happy',     text: '자세는 빙구 같아도 음감은 썩 나쁘지 않단 말이지… 계속 해보게!' },
       ] },
 
-    { n: 2,  title: '유모레스크',                 book: '스즈키 2권',      pre: { tempo: 7 },          req: { tempo: 13, expression: 12 },
+    { n: 2,  title: '유모레스크',                 book: '스즈키 2권',      pre: { tempo: 9 },          req: { tempo: 13, expression: 12 },
       intro: [
-        { who: 'andrea', expr: 'neutral',   text: '이번 곡은 「유모레스크」. 경쾌하게 템포를 타야 한다.' },
+        { who: 'andrea', expr: 'neutral',   img: 'assets/img/cg/intro-q2-humoresque-practice.png', text: '이번 곡은 「유모레스크」. 경쾌하게 템포를 타야 한다.' },
         { who: 'leon',   expr: 'neutral',   text: '템포요? (박자에 맞춰 고개를 까딱이다 악보를 거꾸로 봄) 잠깐, 이게 도야 레야?' },
         { who: 'narr',                      text: '레온이 악보를 거꾸로 든 채 허둥지둥 활을 긋자, 엉뚱한 리듬이 튀어나온다.' },
         { who: 'violet', expr: 'neutral',   text: '(복도를 지나다 멈춰 서며) ……저 한심한 생물은 또 뭐야. 악보도 거꾸로 보고 있잖아.' },
@@ -74,9 +74,9 @@ const GameData = (() => {
         { who: 'violet', expr: 'proud',     text: '구제불능이네. 그런 실력으로 이 아카데미에 들어오다니 양심도 없지.' },
       ] },
 
-    { n: 3,  title: '자이츠 협주곡 2번',          book: '스즈키 4권',      pre: { bowing: 11 },        req: { bowing: 20, pitch: 18 },
+    { n: 3,  title: '자이츠 협주곡 2번',          book: '스즈키 4권',      pre: { bowing: 15, pitch: 12 }, req: { bowing: 20, pitch: 18 },
       intro: [
-        { who: 'andrea', expr: 'neutral',   text: '「자이츠 협주곡」이다. 활을 넓게 쓰는 보잉 기술이 필요해.' },
+        { who: 'andrea', expr: 'neutral',   img: 'assets/img/cg/intro-q3-wide-bowing.png', text: '「자이츠 협주곡」이다. 활을 넓게 쓰는 보잉 기술이 필요해.' },
         { who: 'leon',   expr: 'neutral',   text: '활을 넓게… (지나치게 크게 휘두르다 악기를 벽에 부딪힐 뻔함) 앗차차!' },
         { who: 'narr',                      text: '아슬아슬하게 자세를 고친 레온이 활을 긋자, 엉성한 동작과 달리 제법 시원한 음색이 울려 퍼진다.' },
         { who: 'violet', expr: 'neutral',   text: '(문틈으로 훔쳐보며) 또 저러네… 진짜 엉성하기 짝이 없는데.' },
@@ -84,9 +84,9 @@ const GameData = (() => {
         { who: 'leon',   expr: 'happy',     text: '에라 모르겠다, 일단 긋고 보자! 이야차차!' },
       ] },
 
-    { n: 4,  title: '두 대의 바이올린을 위한 협주곡', book: '바흐/스즈키 5권', pre: { pitch: 17 },         req: { pitch: 27, tempo: 27, bowing: 27, expression: 27 },
+    { n: 4,  title: '두 대의 바이올린을 위한 협주곡', book: '바흐/스즈키 5권', pre: { pitch: 22, tempo: 18, bowing: 22, expression: 18 }, req: { pitch: 27, tempo: 27, bowing: 27, expression: 27 },
       intro: [
-        { who: 'andrea', expr: 'neutral',   text: '이번 과제는 두 대의 바이올린 합주다. 파트너와 호흡을 맞춰라.' },
+        { who: 'andrea', expr: 'neutral',   img: 'assets/img/cg/intro-q4-duet-rehearsal.png', text: '이번 과제는 두 대의 바이올린 합주다. 파트너와 호흡을 맞춰라.' },
         { who: 'leon',   expr: 'surprised', text: '네? 제 파트너가 누구라고요? 설마… 저기 얼음장 같은 분이요?' },
         { who: 'violet', expr: 'angry',     text: '내가 왜 저런 엉터리 청소부랑 합주를 해야 하는 거지, 교수님?!' },
         { who: 'andrea', expr: 'happy',     text: '허허, 둘이 같이 켜보면 알게 될 테니 사양 말고 자리에 서게.' },
@@ -94,9 +94,9 @@ const GameData = (() => {
         { who: 'violet', expr: 'proud',     text: '(흥, 엉망진창으로 틀리기만 해봐 아주 가만두지 않을 거야.)' },
       ] },
 
-    { n: 5,  title: '타이스의 명상곡',            book: '마스네',          pre: { expression: 24 },    req: { expression: 39, tempo: 36 },
+    { n: 5,  title: '타이스의 명상곡',            book: '마스네',          pre: { expression: 31, tempo: 30 }, req: { expression: 39, tempo: 36 },
       intro: [
-        { who: 'narr', bg: 'assets/img/bg/bg-practice-room.png', text: '연습실 구석, 바이올렛이 쉴 틈도 없이 바이올린을 쥐고 벌벌 떨고 있다.' },
+        { who: 'narr', bg: 'assets/img/bg/bg-practice-room.png', img: 'assets/img/cg/intro-q5-violet-practice-room.png', text: '연습실 구석, 바이올렛이 쉴 틈도 없이 바이올린을 쥐고 벌벌 떨고 있다.' },
         { who: 'violet', expr: 'sad',       text: '(안 돼… 이번에도 수석을 놓치면 아버지께 또 호되게 혼날 거야. 완벽해야 해, 무조건…)' },
         { who: 'leon',   expr: 'shy',       text: '(지나가다 멈춰 서며) 바이올렛? 너 얼굴이 왜 이래? 숨도 제대로 못 쉬고 있잖아.' },
         { who: 'violet', expr: 'angry',     text: '상관없잖아! 네가 뭔데 내 연습에 참견이야? 비켜!' },
@@ -104,9 +104,9 @@ const GameData = (() => {
         { who: 'leon',   expr: 'shy',       text: '내가 옆에서 그냥… 내 마음대로 한번 켜볼 테니까, 귀 기울여 들어볼래?' },
       ] },
 
-    { n: 6,  title: '라 폴리아',                  book: '스즈키 7권',      pre: { bowing: 31 },        req: { bowing: 52, pitch: 48 },
+    { n: 6,  title: '라 폴리아',                  book: '스즈키 7권',      pre: { bowing: 42, pitch: 38 }, req: { bowing: 52, pitch: 48 },
       intro: [
-        { who: 'andrea', expr: 'neutral',   text: '광기 어린 변주곡, 「라 폴리아」다. 감정을 다잡고 몰아쳐라.' },
+        { who: 'andrea', expr: 'neutral',   img: 'assets/img/cg/intro-q6-la-folia.png', text: '광기 어린 변주곡, 「라 폴리아」다. 감정을 다잡고 몰아쳐라.' },
         { who: 'leon',   expr: 'neutral',   text: '알겠어 마에스트로! 이번엔 빙구미 안 부리고 진지하게 간다!' },
         { who: 'narr',                      text: '바이올렛이 한층 부드러워진 눈빛으로 레온을 바라보며 고개를 끄덕인다.' },
         { who: 'violet', expr: 'neutral',   text: '레온, 저번처럼 실수하기만 해봐. 이번엔 안 봐줄 거야.' },
@@ -114,9 +114,9 @@ const GameData = (() => {
         { who: 'andrea', expr: 'happy',     text: '좋다, 그 자신감으로 폭풍 같은 변주를 시작해 보게나!' },
       ] },
 
-    { n: 7,  title: '차르다시',                   book: '몬티',            pre: { tempo: 39 },         req: { tempo: 66, bowing: 62 },
+    { n: 7,  title: '차르다시',                   book: '몬티',            pre: { tempo: 52, bowing: 48 }, req: { tempo: 66, bowing: 62 },
       intro: [
-        { who: 'andrea', expr: 'neutral',   text: '이번 곡은 몬티의 「차르다시」다. 애절한 슬픔에서 폭발적인 광기로 치달아야 해.' },
+        { who: 'andrea', expr: 'neutral',   img: 'assets/img/cg/intro-q7-czardas-memory.png', text: '이번 곡은 몬티의 「차르다시」다. 애절한 슬픔에서 폭발적인 광기로 치달아야 해.' },
         { who: 'leon',   expr: 'neutral',   text: '애절한 슬픔이라… 왠지 이 곡의 도입부, 내 어릴 적 기억을 꼭 닮았어.' },
         { who: 'narr',                      text: '레온이 눈을 감자, 아기 때 사고로 부모를 잃고 조부모의 거친 손에 이끌려 자라던 가난했던 시절의 풍경이 스친다.' },
         { who: 'violet', expr: 'neutral',   text: '(레온의 굳은 표정을 눈치채며) 레온? 연주 시작하기 전인데 왜 그렇게 슬픈 눈을 하고 있어?' },
@@ -124,9 +124,9 @@ const GameData = (() => {
         { who: 'violet', expr: 'soft',      text: '……너의 그 쓸쓸한 눈빛마저, 이번 곡에 전부 쏟아내 봐. 내가 곁에서 받아줄 테니까.' },
       ] },
 
-    { n: 8,  title: '서주와 알레그로',            book: '크라이슬러',      pre: { pitch: 49 },         req: { pitch: 81, expression: 76 },
+    { n: 8,  title: '서주와 알레그로',            book: '크라이슬러',      pre: { pitch: 64, expression: 60 }, req: { pitch: 81, expression: 76 },
       intro: [
-        { who: 'andrea', expr: 'neutral',    text: '크라이슬러의 「서주와 알레그로」다. 이제 화려한 기교와 장엄함을 증명해 보일 차례야.' },
+        { who: 'andrea', expr: 'neutral',    img: 'assets/img/cg/intro-q8-broken-practice.png', text: '크라이슬러의 「서주와 알레그로」다. 이제 화려한 기교와 장엄함을 증명해 보일 차례야.' },
         { who: 'leon',   expr: 'neutral',    text: '네, 마에스트로! 이번에도 제대로… (활을 긋자마자 찌그러진 소리가 난다) 엇?' },
         { who: 'narr',                       text: '비브라토는 경련처럼 떨리고, 활을 바꿀 때마다 소리가 뚝뚝 끊기며 박자는 절뚝거리기 시작한다.' },
         { who: 'leon',   expr: 'frustrated', text: '왜 이러지… 활은 비실비실한 소리만 나고, 포지션 이동은 완전히 운에 맡겨야 하잖아.' },
@@ -134,9 +134,9 @@ const GameData = (() => {
         { who: 'leon',   expr: 'angry',      text: '나도 마음대로 안 된다고요! 더 이상 안 해, 해봤자 소용없어! (바이올린을 내려놓고 밖으로 도망친다)' },
       ] },
 
-    { n: 9,  title: '샤콘느',                     book: '바흐',            pre: { expression: 59 },    req: { expression: 98, tempo: 92, pitch: 81 },
+    { n: 9,  title: '샤콘느',                     book: '바흐',            pre: { expression: 78, tempo: 73, pitch: 65 }, req: { expression: 98, tempo: 92, pitch: 81 },
       intro: [
-        { who: 'andrea', expr: 'neutral', bg: 'assets/img/bg/bg-cathedral-night.png', text: '무반주 바이올린 곡의 성경, 바흐의 「샤콘느」다. 혼자서 모든 것을 채워야 해.' },
+        { who: 'andrea', expr: 'neutral', bg: 'assets/img/bg/bg-cathedral-night.png', img: 'assets/img/cg/intro-q9-cathedral-chaconne.png', text: '무반주 바이올린 곡의 성경, 바흐의 「샤콘느」다. 혼자서 모든 것을 채워야 해.' },
         { who: 'leon',   expr: 'neutral',   text: '피아노나 오케스트라의 도움 없이, 오직 내 현과 활로만…' },
         { who: 'narr',                      text: '레온이 눈을 감고 활을 긋자, 텅 빈 공간이 고독하면서도 거대한 울림으로 채워진다.' },
         { who: 'violet', expr: 'sad',       text: '(저 쓸쓸하면서도 아름다운 음색… 레온의 진심이 고스란히 전해져.)' },
@@ -144,9 +144,9 @@ const GameData = (() => {
         { who: 'andrea', expr: 'happy',     text: '(음악으로 영혼을 교감하고 있군. 더 이상 바랄 게 없네.)' },
       ] },
 
-    { n: 10, title: '바이올린 협주곡',            book: '차이코프스키',    pre: { pitch: 67, expression: 67 }, req: { pitch: 110, tempo: 110, bowing: 110, expression: 110 },
+    { n: 10, title: '바이올린 협주곡',            book: '차이코프스키',    pre: { pitch: 90, tempo: 85, bowing: 85, expression: 90 }, req: { pitch: 110, tempo: 110, bowing: 110, expression: 110 },
       intro: [
-        { who: 'andrea', expr: 'neutral', bg: 'assets/img/bg/bg-cremona-plaza.png', text: '드디어 마지막 관문이다. 「차이코프스키 협주곡」으로 콩쿠르 무대를 제패해라.' },
+        { who: 'andrea', expr: 'neutral', bg: 'assets/img/bg/bg-cremona-plaza.png', img: 'assets/img/cg/intro-q10-competition-stage.png', text: '드디어 마지막 관문이다. 「차이코프스키 협주곡」으로 콩쿠르 무대를 제패해라.' },
         { who: 'leon',   expr: 'neutral',   text: '지금까지 갈고닦은 모든 기술과 감정을 이 무대에 쏟아붓겠어.' },
         { who: 'violet', expr: 'happy',     text: '레온, 네 뒤에는 항상 내가 있어. 마음껏 연주해줘!' },
         { who: 'narr',                      text: '크레모나 대극장, 수많은 관객들의 시선이 무대 위 레온에게 집중된다.' },
@@ -157,10 +157,10 @@ const GameData = (() => {
 
   /* ---- 프롤로그 (오프닝, 7컷) ------------------------------------------- */
   const PROLOGUE = [
-    { who: 'narr',   text: '여기는 이탈리아 크레모나, "세브지크 바이올린 아카데미" 대강당. 엄숙한 블라인드 입시 오디션이 한창이다.' },
-    { who: 'narr',   text: '강당 청소 알바를 하러 온 레온은 무대 구석에 덩그러니 놓인 바이올린을 발견했다.' },
+    { who: 'narr',   img: 'assets/img/cg/opening-audition-hall.png', text: '여기는 이탈리아 크레모나, "세브지크 바이올린 아카데미" 대강당. 엄숙한 블라인드 입시 오디션이 한창이다.' },
+    { who: 'narr',   img: 'assets/img/cg/opening-leon-finds-violin.png', text: '강당 청소 알바를 하러 온 레온은 무대 구석에 덩그러니 놓인 바이올린을 발견했다.' },
     { who: 'leon',   expr: 'shy',       text: '이런 게 여기 왜 있지... 한 번만 켜봐도 될까.' },
-    { who: 'narr',   text: '호기심에 활을 그은 순간, 자세는 엉망이었지만 강당을 뒤흔드는 경이로운 울림이 터져 나왔다.' },
+    { who: 'narr',   img: 'assets/img/cg/opening-hidden-talent.png', text: '호기심에 활을 그은 순간, 자세는 엉망이었지만 강당을 뒤흔드는 경이로운 울림이 터져 나왔다.' },
     { who: 'andrea', expr: 'surprised', text: '(문 뒤에서 튀어나오며) 으아니?! 방금 그 원시적이면서도 소름 돋는 음색은 대체 뭐란 말인가!' },
     { who: 'leon',   expr: 'surprised', text: '억, 들켰다! 죄송합니다 변상할 돈은 없어요 살려주세요! (허겁지겁 도망)' },
     { who: 'andrea', expr: 'happy',     text: '(레온의 멱살을 잡으며) 도망가지 마라! 알바하면서 돈도 벌고, 내 전속 견습생으로 들어와라!' },
@@ -172,7 +172,7 @@ const GameData = (() => {
    * --------------------------------------------------------------------- */
   const QUEST_CLEAR = {
     1: [
-      { who: 'andrea', expr: 'happy',   text: '어설프지만 「작은별」 완주 성공이다. 첫발은 내디뎠어.' },
+      { who: 'andrea', expr: 'happy',   img: 'assets/img/cg/outro-q1-little-star.png', text: '어설프지만 「작은별」 완주 성공이다. 첫발은 내디뎠어.' },
       { who: 'leon',   expr: 'happy',   text: '해냈지롱! 어때 바이올렛, 내 천재적인 연주 실력이?' },
       { who: 'violet', expr: 'angry',   text: '어이가 없어서 원. 유치원생 장기자랑 보는 줄 알았네. 두 번 다시 내 눈앞에서 그런 엉성한 연주 하지 마.' },
       { who: 'leon',   expr: 'neutral', text: '(속닥) 쟤는 왜 저렇게 화가 나 있지… 나 뭐 잘못했나?' },
@@ -182,7 +182,7 @@ const GameData = (() => {
     ],
 
     2: [
-      { who: 'narr', text: '진땀을 흘리며 간신히 곡을 끝마친 레온이 헥헥거린다.' },
+      { who: 'narr', img: 'assets/img/cg/outro-q2-humoresque-after.png', text: '진땀을 흘리며 간신히 곡을 끝마친 레온이 헥헥거린다.' },
       { choice: {
         prompt: '연습실 앞, 바이올렛이 팔짱을 낀 채 서 있다. 뭐라고 할까?',
         options: [
@@ -193,7 +193,7 @@ const GameData = (() => {
     ],
 
     3: [
-      { who: 'andrea', expr: 'happy',   text: '폼은 빙구 같아도 보잉의 밀도가 순간적으로 확 살았어! 합격이다!' },
+      { who: 'andrea', expr: 'happy',   img: 'assets/img/cg/outro-q3-seitz-breakthrough.png', text: '폼은 빙구 같아도 보잉의 밀도가 순간적으로 확 살았어! 합격이다!' },
       { who: 'leon',   expr: 'panting', text: '아이고 팔야… 활 쓰기 진짜 힘드네.' },
       { who: 'violet', expr: 'proud',   text: '(나타나며) 요행인 줄 알아. 그런 엉성한 폼으로 거장이 될 리 없으니까.' },
       { who: 'leon',   expr: 'neutral', text: '오, 바이올렛! 내 연주 들었어? 어땠어?' },
@@ -224,7 +224,7 @@ const GameData = (() => {
     ],
 
     6: [
-      { who: 'violet', expr: 'neutral', text: '라 폴리아. 네가 가진 그 무서운 잠재력, 이제야 제대로 알겠어.' },
+      { who: 'violet', expr: 'neutral', img: 'assets/img/cg/outro-q6-la-folia-success.png', text: '라 폴리아. 네가 가진 그 무서운 잠재력, 이제야 제대로 알겠어.' },
       { who: 'leon',   expr: 'panting', text: '후유… 온 힘을 다 쏟아부었더니 다리가 후들거리네.' },
       { who: 'violet', expr: 'proud',   text: '(피식 웃으며) 여전히 끝에 가서는 허당이라니까. …그래도, 멋졌어.' },
       { who: 'narr',                    text: '연주가 끝난 무대 위로 학생들의 환호성이 터져 나온다.' },
@@ -245,7 +245,7 @@ const GameData = (() => {
     ],
 
     8: [
-      { who: 'narr',                        text: '캄캄한 골목길, 우연히 마주친 시내 단골 가게 사장님이 건네는 따뜻한 음료 한 잔에 레온의 마음이 조금씩 녹아내린다.' },
+      { who: 'narr', img: 'assets/img/cg/outro-q8-return-home.png', text: '캄캄한 골목길, 우연히 마주친 시내 단골 가게 사장님이 건네는 따뜻한 음료 한 잔에 레온의 마음이 조금씩 녹아내린다.' },
       { who: 'store_owner', expr: 'friendly', text: '레온, 악기 안 켜고 무슨 일이야? 네가 가게 앞에서 켜주던 그 투박한 소리가 은근히 골목 활력소였는데 말이야.' },
       { who: 'narr',                        text: '발길을 돌려 찾아간 이웃집 친구가 건네는 무심한 위로 속에서, 레온은 자신도 모르게 음악이 스며 있던 일상을 떠올린다.' },
       { who: 'friend', expr: 'warm',        text: '너 맨날 삐걱대도 이상하게 네 연주 들으면 마음이 편해졌거든? 포기하지 마, 너 잘하잖아.' },
@@ -291,7 +291,7 @@ const GameData = (() => {
       ],
     },
     normal: { // 음악성 탐구 엔딩
-      cg: 'normal',
+      cg: 'normal', cgImg: 'assets/img/cg/ending-music-seeker.png',
       lines: [
         { who: 'narr',   text: '크레모나 광장. 우승 트로피보다도, 레온의 시선은 아직 끝나지 않은 악보를 향해 있다.' },
         { who: 'andrea', expr: 'happy',   text: '해냈군, 레온. 하지만 자네 눈을 보니 알겠어. 이미 다음 소리를 찾고 있군.' },

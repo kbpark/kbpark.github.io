@@ -44,7 +44,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
   max-width: 480px;
   height: 100svh;
   display: flex;
-  flex-direction: column;   /* 헤더 / 사랑 게이지 / 퀘스트 / 무대(신축) / 조작부 */
+  flex-direction: column;   /* 헤더 / 퀘스트 / 무대(신축) / 조작부 */
   background: var(--bg-deep);
   box-shadow: var(--shadow);
   position: relative;
@@ -167,37 +167,24 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 
 /* ---- 2) 퀘스트 배너 --------------------------------------------------- */
 .quest {
-  padding: 7px 12px;
+  padding: 5px 12px;
   background: var(--bg-panel);
   border-bottom: 1px solid var(--line);
 }
 .quest-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
 .quest-title { font-size: 14px; font-weight: 700; }
 .quest-book  { font-size: 10px; color: var(--text-dim); white-space:nowrap; }
-.quest-req { display:flex; flex-wrap:wrap; gap:4px; margin: 5px 0; }
+.quest-req { display:flex; flex-wrap:wrap; gap:4px; margin: 4px 0; }
 .req-badge {
   font-size: 10px; padding: 2px 7px; border-radius: 9px;
   background: var(--bg-card); color: var(--text-dim); border: 1px solid var(--line);
 }
 .req-badge.ok { color: var(--ok); border-color: var(--ok); }
 .quest-btn {
-  width: 100%; padding: 7px; border: none; border-radius: 9px; font-size: 12px; font-weight: 700;
+  width: 100%; padding: 6px; border: none; border-radius: 9px; font-size: 12px; font-weight: 700;
   color: #23132a; background: linear-gradient(180deg, #ffe08a, var(--gold)); cursor: pointer;
 }
 .quest-btn:disabled { background: var(--bg-card); color: var(--text-dim); cursor: default; }
-
-/* ---- 사랑 게이지 ------------------------------------------------------ */
-.affection {
-  display: flex; align-items: center; gap: 6px;
-  padding: 7px 16px; font-size: 12px;
-  background: linear-gradient(90deg, #2a1e3e, #221a33);
-  border-bottom: 1px solid var(--line);
-}
-.affection .aff-face { font-size: 14px; }
-.affection .aff-name { color: var(--violet); font-weight: 700; }
-.affection .aff-hearts { letter-spacing: 1px; margin-left: 2px; }
-.affection .aff-label { margin-left: auto; color: var(--text-dim); font-size: 11px;
-  background: var(--bg-card); padding: 1px 8px; border-radius: 8px; }
 
 /* ---- 3) 무대 (아카데미 배경 + 3인 캐릭터) ---------------------------- */
 .stage {
@@ -520,11 +507,23 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
   box-shadow: var(--shadow); padding: 16px;
 }
 .ending-box .dlg-text { min-height: 44px; }
-.restart-btn {
-  width: 100%; margin-top: 10px; padding: 11px; cursor: pointer;
+.ending-actions {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;
+}
+.continue-btn, .restart-btn {
+  width: 100%; padding: 11px; cursor: pointer;
   font-size: 13px; font-weight: 700; color: #23132a;
-  background: linear-gradient(180deg, #ffe08a, var(--gold));
   border: none; border-radius: 10px;
+}
+.continue-btn {
+  color: #1d2633;
+  background: linear-gradient(180deg, #b9f7dc, #67ddb0);
+}
+.restart-btn {
+  background: linear-gradient(180deg, #ffe08a, var(--gold));
+}
+@media (max-width: 360px) {
+  .ending-actions { grid-template-columns: 1fr; }
 }
 
 /* ---- 데스크톱: 폰 프레임처럼 보이게 여백 ----------------------------- */

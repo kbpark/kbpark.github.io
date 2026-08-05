@@ -64,7 +64,6 @@ const UI = (() => {
       points: id('points'), perTap: id('per-tap'), perSec: id('per-sec'),
       titleScreen: id('title-screen'), titleNote: id('title-note'), titleStart: id('title-start'),
       bgmBtn: id('bgm-btn'), sfxBtn: id('sfx-btn'), resetBtn: id('reset-btn'),
-      affection: id('affection'), affHearts: id('aff-hearts'), affLabel: id('aff-label'),
       stage: id('stage'), encoreBtn: id('encore-btn'), buymodeBtn: id('buymode-btn'), panel: id('panel'), tabs: id('tabs'),
       questTitle: id('quest-title'), questBook: id('quest-book'),
       questReq: id('quest-req'), questBtn: id('quest-btn'),
@@ -73,7 +72,8 @@ const UI = (() => {
       dialogue: id('dialogue'), dlgPortrait: id('dialogue-portrait'), dlgName: id('dlg-name'), dlgText: id('dlg-text'),
       dlgChoices: id('dlg-choices'), dlgNext: id('dlg-next'),
       ending: id('ending'), cg: id('cg'), endName: id('ending-name'),
-      endText: id('ending-text'), endRestart: id('ending-restart'),
+      endText: id('ending-text'), endActions: id('ending-actions'),
+      endContinue: id('ending-continue'), endRestart: id('ending-restart'),
       toastLayer: id('toast-layer'),
     };
 
@@ -87,6 +87,7 @@ const UI = (() => {
     bindPress(el.bgmBtn, () => { unlock(); syncBgm(api.toggleBgm()); }, { stop: true });
     bindPress(el.sfxBtn, () => { unlock(); syncSfx(api.toggleSfx()); }, { stop: true });
     bindPress(el.ending, () => { unlock(); advanceEnding(); });
+    bindPress(el.endContinue, () => continueAfterEnding(), { stop: true });
     bindPress(el.endRestart, () => api.restart(), { stop: true });
     el.tabs.querySelectorAll('.tab').forEach((b) =>
       bindPress(b, () => switchTab(b.dataset.tab)));
@@ -333,15 +334,7 @@ const UI = (() => {
 
   /* ---- 사랑 게이지 / 퀘스트 ------------------------------------------- */
   function renderAffection() {
-    const st = GameState.get();
-    const show = st.questIndex >= 1 || st.affection > 0;
-    el.affection.classList.toggle('hidden', !show);
-    if (!show) return;
-    const love = Math.max(0, Math.min(100, st.affection));
-    const filled = Math.round(love / 20);
-    let hearts = ''; for (let i = 0; i < 5; i++) hearts += (i < filled ? '❤️' : '🤍');
-    el.affHearts.textContent = hearts;
-    el.affLabel.textContent = love >= 66 ? '연심' : love >= 33 ? '동료' : '음악 탐구';
+    // 사랑 게이지 값은 엔딩 분기에만 사용하고, 화면에는 표시하지 않는다.
   }
   function renderQuest() {
     const q = api.currentQuest();
@@ -551,17 +544,24 @@ const UI = (() => {
       el.cg.innerHTML = ''; el.cg.appendChild(img);
     } else el.cg.innerHTML = Portraits.endingCG(data.cg);
     endQueue = data.lines.slice();
-    el.endRestart.classList.add('hidden'); el.ending.classList.add('show'); advanceEnding();
+    el.endActions.classList.add('hidden'); el.ending.classList.add('show'); advanceEnding();
   }
   function advanceEnding() {
     if (!el.ending.classList.contains('show')) return;
-    if (endQueue.length === 0) { el.endRestart.classList.remove('hidden'); return; }
+    if (endQueue.length === 0) { el.endActions.classList.remove('hidden'); return; }
     const line = endQueue.shift();
     const ch = CHARACTERS[line.who] || CHARACTERS.narr;
     el.endName.textContent = ch.name || '';
     el.endName.classList.toggle('has-name', !!ch.name);
     el.endName.style.color = ch.color || '#fff';
     el.endText.textContent = line.text;
+  }
+  function continueAfterEnding() {
+    el.ending.classList.remove('show');
+    el.endActions.classList.add('hidden');
+    endQueue = [];
+    render();
+    toast('🎻 계속 연습하기', '엔딩 이후에도 탭, 스킬, 조력자 성장을 계속할 수 있어요.', 4500);
   }
 
   /* ---- 사운드 표시 ----------------------------------------------------- */
