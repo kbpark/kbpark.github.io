@@ -54,7 +54,7 @@ const GameData = (() => {
    *  pre 는 req 의 50~60% 수준으로 잡아, 조금 더 연습하면 다음 곡이 "예고"된다.
    * --------------------------------------------------------------------- */
   const QUESTS = [
-    { n: 1,  title: '반짝반짝 작은별',            book: '스즈키 1권',      pre: {},                    req: { pitch: 7 },
+    { n: 1,  title: '반짝반짝 작은별',            book: '스즈키 1권',      pre: { pitch: 1 },           req: { pitch: 7 },
       intro: [
         { who: 'andrea', expr: 'neutral',   img: 'assets/img/cg/intro-q1-first-lesson.png', text: '자, 견습생 첫 임무다. 「작은별」부터 정확하게 켜봐라.' },
         { who: 'leon',   expr: 'neutral',   text: '네, 마에스트로! (활을 너무 힘주어 잡다 후다닥 놓치며) 앗, 활털이 다 튀었어?!' },
@@ -74,7 +74,7 @@ const GameData = (() => {
         { who: 'violet', expr: 'proud',     text: '구제불능이네. 그런 실력으로 이 아카데미에 들어오다니 양심도 없지.' },
       ] },
 
-    { n: 3,  title: '자이츠 협주곡 2번',          book: '스즈키 4권',      pre: { bowing: 15, pitch: 12 }, req: { bowing: 20, pitch: 18 },
+    { n: 3,  title: '자이츠 협주곡 2번',          book: '스즈키 4권',      pre: { bowing: 15 },        req: { bowing: 20, pitch: 18 },
       intro: [
         { who: 'andrea', expr: 'neutral',   img: 'assets/img/cg/intro-q3-wide-bowing.png', text: '「자이츠 협주곡」이다. 활을 넓게 쓰는 보잉 기술이 필요해.' },
         { who: 'leon',   expr: 'neutral',   text: '활을 넓게… (지나치게 크게 휘두르다 악기를 벽에 부딪힐 뻔함) 앗차차!' },
@@ -84,7 +84,7 @@ const GameData = (() => {
         { who: 'leon',   expr: 'happy',     text: '에라 모르겠다, 일단 긋고 보자! 이야차차!' },
       ] },
 
-    { n: 4,  title: '두 대의 바이올린을 위한 협주곡', book: '바흐/스즈키 5권', pre: { pitch: 22, tempo: 18, bowing: 22, expression: 18 }, req: { pitch: 27, tempo: 27, bowing: 27, expression: 27 },
+    { n: 4,  title: '두 대의 바이올린을 위한 협주곡', book: '바흐/스즈키 5권', pre: { pitch: 22 },         req: { pitch: 27, tempo: 27, bowing: 27, expression: 27 },
       intro: [
         { who: 'andrea', expr: 'neutral',   img: 'assets/img/cg/intro-q4-duet-rehearsal.png', text: '이번 과제는 두 대의 바이올린 합주다. 파트너와 호흡을 맞춰라.' },
         { who: 'leon',   expr: 'surprised', text: '네? 제 파트너가 누구라고요? 설마… 저기 얼음장 같은 분이요?' },
@@ -94,7 +94,7 @@ const GameData = (() => {
         { who: 'violet', expr: 'proud',     text: '(흥, 엉망진창으로 틀리기만 해봐 아주 가만두지 않을 거야.)' },
       ] },
 
-    { n: 5,  title: '타이스의 명상곡',            book: '마스네',          pre: { expression: 31, tempo: 30 }, req: { expression: 39, tempo: 36 },
+    { n: 5,  title: '타이스의 명상곡',            book: '마스네',          pre: { expression: 31 },    req: { expression: 39, tempo: 36 },
       intro: [
         { who: 'narr', bg: 'assets/img/bg/bg-practice-room.png', img: 'assets/img/cg/intro-q5-violet-practice-room.png', text: '연습실 구석, 바이올렛이 쉴 틈도 없이 바이올린을 쥐고 벌벌 떨고 있다.' },
         { who: 'violet', expr: 'sad',       text: '(안 돼… 이번에도 수석을 놓치면 아버지께 또 호되게 혼날 거야. 완벽해야 해, 무조건…)' },
@@ -104,7 +104,7 @@ const GameData = (() => {
         { who: 'leon',   expr: 'shy',       text: '내가 옆에서 그냥… 내 마음대로 한번 켜볼 테니까, 귀 기울여 들어볼래?' },
       ] },
 
-    { n: 6,  title: '라 폴리아',                  book: '스즈키 7권',      pre: { bowing: 42, pitch: 38 }, req: { bowing: 52, pitch: 48 },
+    { n: 6,  title: '라 폴리아',                  book: '스즈키 7권',      pre: { bowing: 42 },        req: { bowing: 52, pitch: 48 },
       intro: [
         { who: 'andrea', expr: 'neutral',   img: 'assets/img/cg/intro-q6-la-folia.png', text: '광기 어린 변주곡, 「라 폴리아」다. 감정을 다잡고 몰아쳐라.' },
         { who: 'leon',   expr: 'neutral',   text: '알겠어 마에스트로! 이번엔 빙구미 안 부리고 진지하게 간다!' },
@@ -114,7 +114,7 @@ const GameData = (() => {
         { who: 'andrea', expr: 'happy',     text: '좋다, 그 자신감으로 폭풍 같은 변주를 시작해 보게나!' },
       ] },
 
-    { n: 7,  title: '차르다시',                   book: '몬티',            pre: { tempo: 52, bowing: 48 }, req: { tempo: 66, bowing: 62 },
+    { n: 7,  title: '차르다시',                   book: '몬티',            pre: { tempo: 52 },         req: { tempo: 66, bowing: 62 },
       intro: [
         { who: 'andrea', expr: 'neutral',   img: 'assets/img/cg/intro-q7-czardas-memory.png', text: '이번 곡은 몬티의 「차르다시」다. 애절한 슬픔에서 폭발적인 광기로 치달아야 해.' },
         { who: 'leon',   expr: 'neutral',   text: '애절한 슬픔이라… 왠지 이 곡의 도입부, 내 어릴 적 기억을 꼭 닮았어.' },
@@ -124,7 +124,7 @@ const GameData = (() => {
         { who: 'violet', expr: 'soft',      text: '……너의 그 쓸쓸한 눈빛마저, 이번 곡에 전부 쏟아내 봐. 내가 곁에서 받아줄 테니까.' },
       ] },
 
-    { n: 8,  title: '서주와 알레그로',            book: '크라이슬러',      pre: { pitch: 64, expression: 60 }, req: { pitch: 81, expression: 76 },
+    { n: 8,  title: '서주와 알레그로',            book: '크라이슬러',      pre: { pitch: 64 },         req: { pitch: 81, expression: 76 },
       intro: [
         { who: 'andrea', expr: 'neutral',    img: 'assets/img/cg/intro-q8-broken-practice.png', text: '크라이슬러의 「서주와 알레그로」다. 이제 화려한 기교와 장엄함을 증명해 보일 차례야.' },
         { who: 'leon',   expr: 'neutral',    text: '네, 마에스트로! 이번에도 제대로… (활을 긋자마자 찌그러진 소리가 난다) 엇?' },
@@ -134,7 +134,7 @@ const GameData = (() => {
         { who: 'leon',   expr: 'angry',      text: '나도 마음대로 안 된다고요! 더 이상 안 해, 해봤자 소용없어! (바이올린을 내려놓고 밖으로 도망친다)' },
       ] },
 
-    { n: 9,  title: '샤콘느',                     book: '바흐',            pre: { expression: 78, tempo: 73, pitch: 65 }, req: { expression: 98, tempo: 92, pitch: 81 },
+    { n: 9,  title: '샤콘느',                     book: '바흐',            pre: { expression: 78 },    req: { expression: 98, tempo: 92, pitch: 81 },
       intro: [
         { who: 'andrea', expr: 'neutral', bg: 'assets/img/bg/bg-cathedral-night.png', img: 'assets/img/cg/intro-q9-cathedral-chaconne.png', text: '무반주 바이올린 곡의 성경, 바흐의 「샤콘느」다. 혼자서 모든 것을 채워야 해.' },
         { who: 'leon',   expr: 'neutral',   text: '피아노나 오케스트라의 도움 없이, 오직 내 현과 활로만…' },
@@ -144,7 +144,7 @@ const GameData = (() => {
         { who: 'andrea', expr: 'happy',     text: '(음악으로 영혼을 교감하고 있군. 더 이상 바랄 게 없네.)' },
       ] },
 
-    { n: 10, title: '바이올린 협주곡',            book: '차이코프스키',    pre: { pitch: 90, tempo: 85, bowing: 85, expression: 90 }, req: { pitch: 110, tempo: 110, bowing: 110, expression: 110 },
+    { n: 10, title: '바이올린 협주곡',            book: '차이코프스키',    pre: { pitch: 90 },         req: { pitch: 110, tempo: 110, bowing: 110, expression: 110 },
       intro: [
         { who: 'andrea', expr: 'neutral', bg: 'assets/img/bg/bg-cremona-plaza.png', img: 'assets/img/cg/intro-q10-competition-stage.png', text: '드디어 마지막 관문이다. 「차이코프스키 협주곡」으로 콩쿠르 무대를 제패해라.' },
         { who: 'leon',   expr: 'neutral',   text: '지금까지 갈고닦은 모든 기술과 감정을 이 무대에 쏟아붓겠어.' },
