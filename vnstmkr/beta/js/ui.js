@@ -143,8 +143,8 @@ const UI = (() => {
   function render() {
     const st = GameState.get();
     el.points.textContent = fmt(Math.floor(st.points));
-    el.perTap.textContent = '탭당 +' + fmt(api.tapValue());
-    el.perSec.textContent = '초당 +' + fmt(api.autoPerSec());
+    el.perTap.textContent = '탭당 ' + fmt(api.tapValue());
+    el.perSec.textContent = '초당 ' + fmt(api.autoPerSec());
     el.buymodeBtn.textContent = '구매 ' + st.buyMode;
 
     renderAffection();
@@ -584,8 +584,8 @@ const UI = (() => {
     if (s.state === 'active')        { b.className = 'encore-badge active';   b.textContent = `🎭${s.remain.toFixed(0)}`; }
     else if (s.state === 'cooldown') { b.className = 'encore-badge cooldown'; b.textContent = `⌛${Math.ceil(s.remain)}`; }
     else                             { b.className = 'encore-badge ready';    b.textContent = `🎭`; }
-    el.perTap.textContent = '탭당 +' + fmt(api.tapValue());
-    el.perSec.textContent = '초당 +' + fmt(api.autoPerSec());
+    el.perTap.textContent = '탭당 ' + fmt(api.tapValue());
+    el.perSec.textContent = '초당 ' + fmt(api.autoPerSec());
   }
 
   function isDialogueOpen() {

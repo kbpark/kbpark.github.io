@@ -122,7 +122,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 4px;
   padding: 6px 8px;
   background: linear-gradient(180deg, #2a2140, #221a33);
   border-bottom: 1px solid var(--line);
@@ -130,17 +130,17 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 .brand { min-width: 0; flex: 1 1 auto; }
 .logo {
   display: inline-flex; align-items: center; gap: 5px;
-  padding: 4px 5px 5px;
+  padding: 4px 4px 5px;
   border-radius: 10px;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 10.5px; line-height: 1; font-weight: 900;
+  font-size: 9.8px; line-height: 1; font-weight: 900;
   color: #fff4c8;
   background: linear-gradient(180deg, rgba(58,42,86,.95), rgba(35,25,55,.95));
   border: 1px solid rgba(255,209,102,.35);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
   white-space: nowrap;
 }
-.logo-text { display: inline-block; max-width: min(116px, 30vw); overflow: hidden; text-overflow: ellipsis; }
+.logo-text { display: inline-block; max-width: 128px; overflow: hidden; text-overflow: ellipsis; }
 .logo-mark {
   display: grid; place-items: center;
   width: 21px; height: 21px;
@@ -149,7 +149,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
   background: radial-gradient(circle at 50% 35%, #fff0b8, var(--gold));
 }
 .brand small { display:none; }
-.top-right { display: flex; align-items: center; justify-content: flex-end; gap: 5px; min-width: 0; flex: 0 1 auto; }
+.top-right { display: flex; align-items: center; justify-content: flex-end; gap: 4px; min-width: 0; flex: 0 1 auto; }
 .settings { position: relative; flex: 0 0 auto; }
 .settings-btn,
 .snd-btn {
@@ -187,7 +187,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 .snd-btn:active { transform: scale(.9); }
 .snd-btn.off { opacity: .45; border-style: dashed; }
 .snd-btn.reset { color: #ff9db0; font-size: 17px; font-weight: 700; }
-.wallet { text-align: right; flex: 1 1 auto; min-width: 0; max-width: 118px; overflow: hidden; }
+.wallet { text-align: right; flex: 1 1 auto; min-width: 0; max-width: 126px; overflow: hidden; }
 .wallet .amount {
   display: inline-flex; align-items: center; justify-content: flex-end; gap: 2px;
   width: 100%; font-size: 15px; font-weight: 800; color: var(--gold); line-height: 1;
@@ -195,10 +195,10 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 }
 .wallet #points { display: inline-block; text-align: right; }
 .wallet .label  { font-size: 10px; color: var(--text-dim); }
-.rates { display:flex; gap:4px; margin-top:2px; font-size:9px; color: var(--text-dim); justify-content:flex-end; min-width:0; }
+.rates { display:flex; gap:2px; margin-top:2px; font-size:8.5px; color: var(--text-dim); justify-content:flex-end; min-width:0; }
 .rates span {
-  min-width: 0; max-width: 58px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  background: var(--bg-card); padding: 1px 5px; border-radius: 7px;
+  flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  background: var(--bg-card); padding: 1px 3px; border-radius: 7px;
 }
 
 /* ---- 2) 퀘스트 배너 --------------------------------------------------- */
@@ -576,6 +576,16 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
   background: linear-gradient(180deg, #ffe08a, var(--gold));
 }
 @media (max-width: 360px) {
+  .topbar { gap: 3px; padding-left: 6px; padding-right: 6px; }
+  .logo { gap: 4px; padding-left: 3px; padding-right: 3px; font-size: 9.2px; }
+  .logo-mark { width: 19px; height: 19px; font-size: 13px; }
+  .logo-text { max-width: 122px; }
+  .wallet { max-width: 110px; }
+  .wallet .amount { font-size: 14px; }
+  .rates { gap: 1px; font-size: 8px; }
+  .rates span { padding-left: 2px; padding-right: 2px; }
+  .settings-btn,
+  .snd-btn { width: 25px; height: 25px; }
   .ending-actions { grid-template-columns: 1fr; }
 }
 
