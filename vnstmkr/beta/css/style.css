@@ -156,6 +156,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
   width: 26px; height: 26px; border-radius: 8px; cursor: pointer;
   border: 1px solid var(--line); background: var(--bg-card); color: var(--text);
   font-size: 13px; line-height: 1; display: grid; place-items: center;
+  text-decoration: none;
 }
 .settings-btn { font-size: 15px; }
 .settings-menu {
@@ -187,6 +188,7 @@ img { image-rendering: pixelated; } /* 도트 스프라이트 대비 */
 .snd-btn:active { transform: scale(.9); }
 .snd-btn.off { opacity: .45; border-style: dashed; }
 .snd-btn.reset { color: #ff9db0; font-size: 17px; font-weight: 700; }
+.snd-btn.about { color: var(--gold); font-size: 16px; font-weight: 800; }
 .wallet { text-align: right; flex: 1 1 auto; min-width: 0; max-width: 126px; overflow: hidden; }
 .wallet .amount {
   display: inline-flex; align-items: center; justify-content: flex-end; gap: 2px;
